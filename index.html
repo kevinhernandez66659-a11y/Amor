@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>✨ 14 de Diciembre - Nuestro amor eterno ✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #ff6b9d 50%, #f093fb 75%, #667eea 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Georgia', 'Times New Roman', serif;
+            padding: 20px;
+            cursor: pointer;
+            transition: background 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 60px;
+            padding: 2rem 1.8rem;
+            max-width: 650px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.8s ease;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .corazon-fijo {
+            font-size: 2.8rem;
+            display: inline-block;
+            filter: drop-shadow(0 0 8px #ff6b9d);
+            animation: latidoSuave 2s ease infinite;
+        }
+        
+        @keyframes latidoSuave {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        
+        .bienvenida {
+            background: rgba(255, 215, 235, 0.7);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 1rem;
+            color: #b04e7a;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
+        }
+
+        .fecha-sutil {
+            font-size: 0.8rem;
+            color: rgba(118, 75, 162, 0.6);
+            margin-top: 5px;
+            margin-bottom: 10px;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        .contador {
+            background: rgba(118, 75, 162, 0.15);
+            border-radius: 100px;
+            padding: 6px 16px;
+            display: inline-block;
+            margin: 10px 0 15px;
+            font-weight: bold;
+            color: #764ba2;
+            font-size: 1.2rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .foto {
+            margin: 20px 0;
+            border-radius: 40px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            border: 3px solid white;
+        }
+
+        .foto img {
+            width: 100%;
+            height: auto;
+            max-height: 450px;
+            object-fit: contain;
+            display: block;
+            transition: transform 0.3s;
+        }
+
+        .frase {
+            font-size: 1rem;
+            color: #2c2c2c;
+            background: rgba(255, 245, 250, 0.95);
+            padding: 25px 20px;
+            border-radius: 40px;
+            margin: 20px 0;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 1.65;
+            text-align: left;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-left: 6px solid #ff6b9d;
+            border-right: 6px solid #764ba2;
+            white-space: pre-line;
+            font-family: 'Segoe UI', 'Georgia', serif;
+        }
+
+        .verificacion {
+            background: rgba(255, 235, 245, 0.8);
+            border-radius: 40px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .verificacion label {
+            font-weight: bold;
+            color: #764ba2;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .verificacion input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 50px;
+            border: 2px solid #ff9acb;
+            text-align: center;
+            font-size: 1rem;
+            background: white;
+            margin-bottom: 10px;
+        }
+        
+        .botones-whatsapp {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            min-height: 50px;
+        }
+        
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            flex: 1;
+            min-width: 140px;
+            display: none;
+        }
+        
+        .btn-whatsapp:active {
+            transform: scale(0.95);
+        }
+        
+        .mensaje-error {
+            color: red;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+        
+        .mensaje-exito {
+            color: green;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+
+        .despedida {
+            background: rgba(118, 75, 162, 0.12);
+            border-radius: 40px;
+            padding: 12px;
+            margin: 15px 0 5px;
+            font-size: 0.9rem;
+            color: #5c3a7a;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .corazon-flotante {
+            position: fixed;
+            font-size: 3rem;
+            pointer-events: none;
+            z-index: 1000;
+            filter: drop-shadow(0 0 8px rgba(255,50,100,0.6));
+            animation: flotarLento 3s ease-out forwards;
+        }
+
+        @keyframes flotarLento {
+            0% { transform: translateY(0) scale(0.8); opacity: 0; }
+            15% { transform: translateY(-20px) scale(1); opacity: 1; }
+            85% { transform: translateY(-120px) scale(1); opacity: 1; }
+            100% { transform: translateY(-180px) scale(0.6); opacity: 0; }
+        }
+
+        @media (max-width: 550px) {
+            .container { padding: 1.5rem; }
+            .frase { font-size: 0.9rem; padding: 18px; }
+            .corazon-flotante { font-size: 2.5rem; }
+            .btn-whatsapp { font-size: 0.75rem; padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="corazon-fijo">💖</div>
+            <div class="bienvenida" id="mensajeBienvenida">
+                ✨ Gracias por venir hoy ✨
+            </div>
+        </div>
+        
+        <div class="fecha-sutil">14 de diciembre de 2019</div>
+        
+        <div class="contador" id="contadorDias">
+            Calculando...
+        </div>
+        
+        <div class="foto">
+            <img id="fotoNovia" src="https://i.imgur.com/NRfWZRG.jpg" alt="Mi amor">
+        </div>
+        
+        <div class="frase" id="fraseDiaria">
+            ✨ Cargando poema especial... ✨
+        </div>
+        
+        <div class="verificacion">
+            <label>🔐 Escribe tu palabra secreta:</label>
+            <input type="text" id="palabraInput" placeholder="Palabra secreta" autocomplete="off">
+            <div class="botones-whatsapp">
+                <button class="btn-whatsapp" id="whatsappBtnElla">📱 Enviar mensaje a Mi Rey</button>
+                <button class="btn-whatsapp" id="whatsappBtnKevin">📱 Enviar mensaje a Mi Reina</button>
+            </div>
+            <div id="mensajeValidacion" class="mensaje-error"></div>
+        </div>
+        
+        <div class="despedida" id="mensajeDespedida">
+            🌙 Amor, te espero mañana para decirte cuánto te amo...
+        </div>
+    </div>
+    
+    <script>
+        const fechaInicio = new Date(2019, 11, 14);
+        const NUMERO_KEVIN = "50237418036";
+        const NUMERO_ELLA = "50248584358";
+        
+        // PALABRAS SECRETAS
+        const PALABRA_ELLA = "cariño";
+        const PALABRA_KEVIN = "mavie";
+        
+        // ========== POEMAS NEUTROS ==========
+        function obtenerPoema(dias) {
+            const poemas = [
+                `Día ${dias}: Si tuviera que escribir todo lo que siento, no me alcanzarían los árboles del mundo para hacer tanto papel. Porque este amor ha llenado cada rincón de mi ser. 
+
+Recuerdo tu risa en los días grises, tus abrazos en las tormentas, tus besos en los atardeceres. Eres la protagonista de mi mejor historia, la musa que inspira mis días, la razón por la que mi corazón late más fuerte.
+
+Gracias por elegirme. Gracias por quedarte. Gracias por ser simplemente tú. 🌙💫`,
+                
+                `Día ${dias}: Cuando pienso en el amor, pienso en tus ojos al despertar. En tu voz ronca diciendo "buenos días". En tus manos buscando las mías bajo la sábana. 
+
+Eres la calma en medio del caos. La certeza en medio de las dudas. La luz cuando todo parece oscuro. 
+
+Contigo he aprendido que el amor no es un destino, es un viaje. Y no hay nadie con quien prefiera recorrerlo.
+
+Cada día a tu lado es un regalo que atesoro. Y aunque pasen los años, yo seguiré eligiéndote a ti. Siempre. 💖🌟`,
+                
+                `Día ${dias}: Eres la dueña de mis pensamientos, la protagonista de mis sueños, el primer rostro que viene a mi mente cuando despierto y el último antes de dormir. 
+
+Tu amor me ha enseñado a ser valiente, a creer en la magia, a entender que los finales felices existen si uno los construye con cariño.
+
+No sabes cuánto me alegra cada mensaje tuyo, cada llamada inesperada, cada gesto pequeño que demuestra que piensas en mí. 
+
+Porque en los pequeños detalles está lo grande. Y tú eres el detalle más grande y hermoso de mi vida. Gracias por ser mi persona favorita en todo el universo. 🌍❤️`,
+                
+                `Día ${dias}: A veces miro atrás y veo todo lo que hemos construido. Cada sonrisa, cada lágrima, cada abrazo ha sido un ladrillo en esta casa llamada amor.
+
+Eres mi roca, mi ancla, mi puerto seguro. No sé qué hice para merecerte, pero sé que cada día intento ser mejor persona porque tú mereces lo mejor.
+
+Gracias por ser mi hogar. Te amo más de lo que las palabras pueden expresar. 🏡💖`
+            ];
+            return poemas[dias % poemas.length];
+        }
+        
+        function obtenerBienvenida(dias) {
+            const bienvenidas = [
+                "✨ Gracias por venir hoy de nuevo ✨",
+                "💖 Te preparé este poema solo para ti 💖",
+                "🌹 Cada día una sorpresa. Hoy te toca esta joya 🌹",
+                "🌸 Bienvenida/o. Esto es para tu corazón 🌸",
+                "💫 Un día más a tu lado, un poema más en tu alma 💫"
+            ];
+            return bienvenidas[dias % bienvenidas.length];
+        }
+        
+        function calcularDiasJuntos() {
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+            const inicio = new Date(fechaInicio);
+            inicio.setHours(0,0,0,0);
+            return Math.floor((hoy - inicio) / (1000*60*60*24));
+        }
+        
+        function actualizarTodo() {
+            const dias = calcularDiasJuntos();
+            document.getElementById('contadorDias').innerHTML = `❤️ ${dias} días juntos ❤️`;
+            document.getElementById('fraseDiaria').innerHTML = obtenerPoema(dias);
+            document.getElementById('mensajeBienvenida').innerHTML = obtenerBienvenida(dias);
+        }
+        
+        let botonKevinActivo = false;
+        let botonEllaActivo = false;
+        
+        function verificarPalabra() {
+            const input = document.getElementById('palabraInput').value.trim().toLowerCase();
+            const msgDiv = document.getElementById('mensajeValidacion');
+            const btnElla = document.getElementById('whatsappBtnElla');
+            const btnKevin = document.getElementById('whatsappBtnKevin');
+            
+            btnElla.style.display = 'none';
+            btnKevin.style.display = 'none';
+            botonEllaActivo = false;
+            botonKevinActivo = false;
+            
+            if (input === PALABRA_ELLA) {
+                botonEllaActivo = true;
+                btnElla.style.display = 'flex';
+                msgDiv.innerHTML = "✅ ¡Palabra correcta! Puedes enviar mensaje a Mi Rey.";
+                msgDiv.className = "mensaje-exito";
+            } 
+            else if (input === PALABRA_KEVIN) {
+                botonKevinActivo = true;
+                btnKevin.style.display = 'flex';
+                msgDiv.innerHTML = "✅ ¡Palabra correcta! Puedes enviar mensaje a Mi Reina.";
+                msgDiv.className = "mensaje-exito";
+            }
+            else if (input !== "") {
+                msgDiv.innerHTML = "❌ Palabra incorrecta.";
+                msgDiv.className = "mensaje-error";
+            } else {
+                msgDiv.innerHTML = "";
+            }
+        }
+        
+        function enviarWhatsApp(numero) {
+            const mensaje = `¡Hola amor! 💖 Acabo de escanear el código y leí el poema de hoy. Te amo muchísimo. ✨`;
+            const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        }
+        
+        // Colores y corazones flotantes
+        let colorIndex = 0;
+        const colorPalettes = [
+            "linear-gradient(135deg, #667eea 0%, #764ba2 25%, #ff6b9d 50%, #f093fb 75%, #667eea 100%)",
+            "linear-gradient(135deg, #ff9a9e 0%, #fad0c4 25%, #fad0c4 50%, #ffd1ff 75%, #ff9a9e 100%)",
+            "linear-gradient(135deg, #a18cd1 0%, #fbc2eb 25%, #fbc2eb 50%, #ff9a9e 75%, #a18cd1 100%)",
+            "linear-gradient(135deg, #ffecd2 0%, #fcb69f 25%, #fcb69f 50%, #ff6b9d 75%, #ffecd2 100%)",
+            "linear-gradient(135deg, #b0f3f1 0%, #ffcfdf 25%, #ffcfdf 50%, #b0f3f1 75%, #b0f3f1 100%)"
+        ];
+        
+        function cambiarColorSuave() {
+            colorIndex = (colorIndex + 1) % colorPalettes.length;
+            document.body.style.background = colorPalettes[colorIndex];
+            document.body.style.backgroundSize = "400% 400%";
+        }
+        
+        function crearCorazon(x, y) {
+            const corazon = document.createElement('div');
+            corazon.className = 'corazon-flotante';
+            const emojis = ['❤️','💖','💗','💓','💘','💝','❤️‍🔥','💕'];
+            corazon.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+            corazon.style.left = (x - 30) + 'px';
+            corazon.style.top = (y - 30) + 'px';
+            document.body.appendChild(corazon);
+            setTimeout(() => corazon.remove(), 3000);
+        }
+        
+        function tocarCorazones(e) {
+            const x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+            const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            if (x && y) {
+                cambiarColorSuave();
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => crearCorazon(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 40), i * 60);
+                }
+            }
+        }
+        
+        document.addEventListener('click', tocarCorazones);
+        document.addEventListener('touchstart', tocarCorazones);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            actualizarTodo();
+            
+            // Limpiar el campo de palabra secreta al cargar (para que siempre esté vacío)
+            const inputPalabra = document.getElementById('palabraInput');
+            inputPalabra.value = "";
+            inputPalabra.addEventListener('input', verificarPalabra);
+            
+            document.getElementById('whatsappBtnElla').addEventListener('click', () => {
+                if (botonEllaActivo) enviarWhatsApp(NUMERO_KEVIN);
+            });
+            document.getElementById('whatsappBtnKevin').addEventListener('click', () => {
+                if (botonKevinActivo) enviarWhatsApp(NUMERO_ELLA);
+            });
+        });
+    </script>
+</body>
+</html>
