@@ -1,447 +1,1995 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>✨ 14 de Diciembre - Nuestro amor eterno ✨</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💖 Mapa del Amor 💖</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html,body{height:100%;font-family:'Segoe UI',Tahoma,sans-serif;background:#1a0a14;color:#fff;overflow:hidden;}
+  #app{position:relative;width:100vw;height:100vh;}
 
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #ff6b9d 50%, #f093fb 75%, #667eea 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 12s ease infinite;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Segoe UI', 'Georgia', 'Times New Roman', serif;
-            padding: 20px;
-            cursor: pointer;
-            transition: background 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
+  /* ============ INTRO CON FOTO COMPLETA ============ */
+  .overlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;z-index:50;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:20px;overflow-y:auto;
+    background-image:url('https://i.imgur.com/NRfWZRG.jpg');
+    background-size:cover;
+    background-position:center center;
+    background-repeat:no-repeat;
+    /* Sin zoom: respeta la imagen completa */
+  }
+  .overlay::before{
+    content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+    background:linear-gradient(135deg,
+      rgba(61,10,36,0.65) 0%,
+      rgba(122,17,64,0.55) 50%,
+      rgba(61,10,36,0.7) 100%);
+    z-index:0;
+  }
+  .overlay > * {position:relative;z-index:1;}
+  .overlay h1{font-size:2.2rem;background:linear-gradient(90deg,#ffd166,#ff5c8a,#ffd166,#ff5c8a,#ffd166);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:14px;animation:brillo 3s ease-in-out infinite;text-shadow:0 0 20px rgba(255,92,138,.5);font-weight:900;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));}
+  @keyframes brillo{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+  .overlay p{max-width:520px;margin:8px auto;line-height:1.7;color:#fff;font-size:1rem;text-shadow:0 2px 8px rgba(0,0,0,.9), 0 0 15px rgba(0,0,0,.7);font-weight:600;}
 
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+  .corazon-flotante{position:fixed;bottom:-50px;font-size:1.5rem;animation:flotar 8s linear infinite;opacity:0;pointer-events:none;z-index:1;}
+  @keyframes flotar{0%{transform:translateY(0) rotate(0deg);opacity:0;}10%{opacity:0.8;}90%{opacity:0.8;}100%{transform:translateY(-110vh) rotate(360deg);opacity:0;}}
 
-        .container {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            border-radius: 60px;
-            padding: 2rem 1.8rem;
-            max-width: 650px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 30px 50px rgba(0,0,0,0.3);
-            animation: fadeInUp 0.8s ease;
-            border: 1px solid rgba(255,255,255,0.5);
-        }
+  .btn{display:inline-block;margin-top:18px;padding:14px 28px;border:none;border-radius:50px;background:linear-gradient(90deg,#ff5c8a,#c9184a);color:#fff;font-size:1.05rem;font-weight:bold;cursor:pointer;box-shadow:0 6px 20px rgba(255,92,138,.5);transition:.25s;position:relative;animation:pulso 2s ease-in-out infinite;z-index:2;}
+  @keyframes pulso{0%,100%{box-shadow:0 6px 20px rgba(255,92,138,.5);transform:scale(1);}50%{box-shadow:0 8px 30px rgba(255,92,138,.8);transform:scale(1.03);}}
+  .btn:hover{transform:translateY(-3px) scale(1.05);}
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;border:2px solid #ffd166;background:rgba(42,15,30,0.95);color:#fff;font-size:1rem;text-align:center;outline:none;margin-top:10px;}
 
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
-        }
-        
-        .corazon-fijo {
-            font-size: 2.8rem;
-            display: inline-block;
-            filter: drop-shadow(0 0 8px #ff6b9d);
-            animation: latidoSuave 2s ease infinite;
-        }
-        
-        @keyframes latidoSuave {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-        }
-        
-        .bienvenida {
-            background: rgba(255, 215, 235, 0.7);
-            border-radius: 50px;
-            padding: 8px 20px;
-            font-size: 1rem;
-            color: #b04e7a;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            backdrop-filter: blur(4px);
-        }
+  /* ============ MENÚ PRINCIPAL DISEÑO NUEVO ============ */
+  #menuPrincipal{
+    position:fixed;top:0;left:0;right:0;bottom:0;z-index:40;
+    display:none;flex-direction:column;align-items:center;justify-content:flex-start;
+    background:linear-gradient(135deg,#1a0a14 0%,#3d0a24 50%,#1a0a14 100%);
+    background-size:200% 200%;
+    animation:fondoMenu 20s ease infinite;
+    padding:24px 20px;
+    overflow-y:auto;
+  }
+  @keyframes fondoMenu{
+    0%,100%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+  }
 
-        .fecha-sutil {
-            font-size: 0.8rem;
-            color: rgba(118, 75, 162, 0.6);
-            margin-top: 5px;
-            margin-bottom: 10px;
-            font-weight: 400;
-            letter-spacing: 1px;
-        }
+  /* Cabecera del menú */
+  .menu-header{
+    text-align:center;
+    margin-bottom:24px;
+    padding:20px 15px;
+    max-width:500px;
+    width:100%;
+    position:relative;
+  }
+  .menu-header::before{
+    content:'';
+    position:absolute;
+    top:0;left:50%;
+    transform:translateX(-50%);
+    width:60px;height:4px;
+    background:linear-gradient(90deg,#ffd166,#ff5c8a);
+    border-radius:10px;
+  }
+  .menu-header h1{
+    font-size:1.8rem;
+    background:linear-gradient(90deg,#ffd166,#ff5c8a,#ffd166);
+    background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin:12px 0 6px;
+    animation:brillo 3s ease-in-out infinite;
+    font-weight:900;
+    letter-spacing:1px;
+  }
+  .menu-header .subtitulo{
+    color:#ffb3c9;
+    font-size:.85rem;
+    font-style:italic;
+    letter-spacing:0.5px;
+  }
+  .menu-header .corazon-menu{
+    font-size:2rem;
+    animation:latidoMenu 2s ease-in-out infinite;
+    display:inline-block;
+  }
+  @keyframes latidoMenu{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.15);}
+  }
 
-        .contador {
-            background: rgba(118, 75, 162, 0.15);
-            border-radius: 100px;
-            padding: 6px 16px;
-            display: inline-block;
-            margin: 10px 0 15px;
-            font-weight: bold;
-            color: #764ba2;
-            font-size: 1.2rem;
-            backdrop-filter: blur(4px);
-        }
+  /* Grid de opciones */
+  .menu-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:14px;
+    width:100%;
+    max-width:500px;
+    padding:0 5px;
+  }
 
-        .foto {
-            margin: 20px 0;
-            border-radius: 40px;
-            overflow: hidden;
-            background: white;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-            border: 3px solid white;
-        }
+  /* Tarjeta del menú */
+  .menu-opcion{
+    position:relative;
+    padding:18px 12px;
+    border:none;
+    border-radius:20px;
+    background:linear-gradient(135deg, rgba(122,17,64,0.6), rgba(74,15,46,0.9));
+    border:2px solid rgba(255,209,102,0.25);
+    color:#fff;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:0 4px 15px rgba(0,0,0,.3);
+    overflow:hidden;
+    text-align:center;
+    min-height:120px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .menu-opcion::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;
+    width:100%;height:4px;
+    background:linear-gradient(90deg, #ff5c8a, #ffd166);
+    transform:scaleX(0);
+    transform-origin:left;
+    transition:transform 0.3s ease;
+  }
+  .menu-opcion:hover{
+    transform:translateY(-5px) scale(1.02);
+    border-color:#ffd166;
+    box-shadow:0 10px 30px rgba(255,92,138,.5);
+    background:linear-gradient(135deg, rgba(122,17,64,0.8), rgba(201,24,74,0.7));
+  }
+  .menu-opcion:hover::before{
+    transform:scaleX(1);
+  }
+  .menu-opcion:active{
+    transform:translateY(-2px) scale(0.98);
+  }
+  .menu-opcion .icono{
+    font-size:2.2rem;
+    filter:drop-shadow(0 3px 6px rgba(0,0,0,.5));
+    transition:transform 0.3s ease;
+  }
+  .menu-opcion:hover .icono{
+    transform:scale(1.15) rotate(-5deg);
+  }
+  .menu-opcion .texto{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    z-index:1;
+  }
+  .menu-opcion .texto strong{
+    font-size:.9rem;
+    color:#ffd166;
+    font-weight:700;
+    letter-spacing:0.3px;
+    text-shadow:0 1px 3px rgba(0,0,0,.5);
+  }
+  .menu-opcion .texto small{
+    font-size:.65rem;
+    color:#ffb3c9;
+    font-weight:400;
+    line-height:1.2;
+    max-width:100%;
+  }
 
-        .foto img {
-            width: 100%;
-            height: auto;
-            max-height: 450px;
-            object-fit: contain;
-            display: block;
-            transition: transform 0.3s;
-        }
+  /* Pie de página */
+  .menu-footer{
+    margin-top:30px;
+    text-align:center;
+    color:#ffb3c9;
+    font-size:.75rem;
+    opacity:0.7;
+    letter-spacing:1px;
+  }
 
-        .frase {
-            font-size: 1rem;
-            color: #2c2c2c;
-            background: rgba(255, 245, 250, 0.95);
-            padding: 25px 20px;
-            border-radius: 40px;
-            margin: 20px 0;
-            font-style: normal;
-            font-weight: 500;
-            line-height: 1.65;
-            text-align: left;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            border-left: 6px solid #ff6b9d;
-            border-right: 6px solid #764ba2;
-            white-space: pre-line;
-            font-family: 'Segoe UI', 'Georgia', serif;
-        }
+  /* ============ SECCIONES ============ */
+  .seccion{position:fixed;top:0;left:0;right:0;bottom:0;z-index:30;display:none;flex-direction:column;background:linear-gradient(135deg,#1a0a14,#3d0a24);overflow:hidden;}
+  .seccion.activa{display:flex;}
+  .seccion-header{padding:12px 16px;background:rgba(26,10,20,.95);border-bottom:1px solid rgba(255,209,102,.3);display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:5;}
+  .btn-volver{background:linear-gradient(90deg,#ff5c8a,#c9184a);border:none;color:#fff;padding:10px 18px;border-radius:30px;cursor:pointer;font-weight:bold;font-size:.85rem;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(255,92,138,.4);transition:.2s;}
+  .btn-volver:hover{transform:scale(1.05);}
+  .seccion-titulo{color:#ffd166;font-size:1.05rem;font-weight:bold;}
+  .seccion-body{flex:1;overflow-y:auto;padding:18px;-webkit-overflow-scrolling:touch;}
 
-        .verificacion {
-            background: rgba(255, 235, 245, 0.8);
-            border-radius: 40px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        .verificacion label {
-            font-weight: bold;
-            color: #764ba2;
-            display: block;
-            margin-bottom: 8px;
-        }
-        
-        .verificacion input {
-            width: 80%;
-            padding: 10px;
-            border-radius: 50px;
-            border: 2px solid #ff9acb;
-            text-align: center;
-            font-size: 1rem;
-            background: white;
-            margin-bottom: 10px;
-        }
-        
-        .botones-whatsapp {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 10px;
-            min-height: 50px;
-        }
-        
-        .btn-whatsapp {
-            background: #25D366;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-            flex: 1;
-            min-width: 140px;
-            display: none;
-        }
-        
-        .btn-whatsapp:active {
-            transform: scale(0.95);
-        }
-        
-        .mensaje-error {
-            color: red;
-            font-size: 0.8rem;
-            margin-top: 10px;
-        }
-        
-        .mensaje-exito {
-            color: green;
-            font-size: 0.8rem;
-            margin-top: 10px;
-        }
+  #map{position:absolute;top:0;left:0;right:0;bottom:0;z-index:1;}
+  #hud{position:absolute;top:12px;left:12px;right:12px;z-index:20;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;pointer-events:none;}
+  .chip{pointer-events:auto;background:rgba(26,10,20,.85);border:1px solid rgba(255,209,102,.5);border-radius:40px;padding:8px 14px;font-size:.8rem;color:#ffe3ee;box-shadow:0 4px 12px rgba(0,0,0,.3);}
+  .chip strong{color:#ffd166;}
+  .btn-salir-mapa{position:absolute;top:12px;left:12px;z-index:25;background:linear-gradient(90deg,#ff5c8a,#c9184a);border:none;color:#fff;padding:10px 18px;border-radius:30px;cursor:pointer;font-weight:bold;font-size:.85rem;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(255,92,138,.4);}
 
-        .despedida {
-            background: rgba(118, 75, 162, 0.12);
-            border-radius: 40px;
-            padding: 12px;
-            margin: 15px 0 5px;
-            font-size: 0.9rem;
-            color: #5c3a7a;
-            font-weight: 500;
-            line-height: 1.4;
-        }
+  #indicadorDistancia{
+    position:absolute;top:70px;right:12px;z-index:20;
+    background:rgba(26,10,20,.92);border:2px solid #ffd166;border-radius:16px;
+    padding:12px 16px;min-width:180px;
+    box-shadow:0 6px 20px rgba(0,0,0,.5);text-align:center;
+    backdrop-filter:blur(8px);transition:.3s;
+  }
+  #indicadorDistancia.cerca{border-color:#4CAF50;background:rgba(26,60,26,.92);}
+  #indicadorDistancia.muycerca{border-color:#ff5c8a;background:rgba(74,15,46,.95);animation:pulsoIndicador 1.5s ease-in-out infinite;}
+  @keyframes pulsoIndicador{0%,100%{box-shadow:0 6px 20px rgba(255,92,138,.4);}50%{box-shadow:0 6px 30px rgba(255,92,138,.9);}}
+  #indicadorDistancia .titulo{font-size:.7rem;color:#ffb3c9;font-weight:bold;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+  #indicadorDistancia .distancia{font-size:1.4rem;font-weight:bold;color:#ffd166;margin-bottom:8px;}
+  #indicadorDistancia .brujula{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px;background:rgba(0,0,0,.3);border-radius:10px;margin-bottom:6px;}
+  #indicadorDistancia .brujula .direccion{font-size:1rem;font-weight:bold;color:#ffe3ee;}
+  #indicadorDistancia .consejo{font-size:.75rem;color:#ffe3ee;font-style:italic;line-height:1.4;}
 
-        .corazon-flotante {
-            position: fixed;
-            font-size: 3rem;
-            pointer-events: none;
-            z-index: 1000;
-            filter: drop-shadow(0 0 8px rgba(255,50,100,0.6));
-            animation: flotarLento 3s ease-out forwards;
-        }
+  #brujulaNorte{
+    position:absolute;top:70px;left:12px;z-index:20;
+    width:64px;height:64px;
+    background:rgba(26,10,20,.92);border:2px solid #ffd166;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 20px rgba(0,0,0,.5);backdrop-filter:blur(8px);
+  }
+  #brujulaNorte .norte{position:absolute;top:4px;font-size:.75rem;font-weight:bold;color:#ff5c8a;}
+  #brujulaNorte .sur{position:absolute;bottom:4px;font-size:.75rem;font-weight:bold;color:#888;}
+  #brujulaNorte .este{position:absolute;right:5px;font-size:.75rem;font-weight:bold;color:#888;}
+  #brujulaNorte .oeste{position:absolute;left:5px;font-size:.75rem;font-weight:bold;color:#888;}
+  #brujulaNorte .puntoCentral{width:6px;height:6px;border-radius:50%;background:#ffd166;}
 
-        @keyframes flotarLento {
-            0% { transform: translateY(0) scale(0.8); opacity: 0; }
-            15% { transform: translateY(-20px) scale(1); opacity: 1; }
-            85% { transform: translateY(-120px) scale(1); opacity: 1; }
-            100% { transform: translateY(-180px) scale(0.6); opacity: 0; }
-        }
+  .notif-direccion{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.5);
+    z-index:30;
+    background:linear-gradient(135deg,rgba(255,92,138,.95),rgba(201,24,74,.95));
+    border:2px solid #ffd166;border-radius:20px;padding:20px 30px;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);opacity:0;pointer-events:none;
+    transition:all .4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  .notif-direccion.visible{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  .notif-direccion .flecha{font-size:3rem;margin-bottom:8px;}
+  .notif-direccion .texto{font-size:1rem;font-weight:bold;color:#fff;white-space:nowrap;}
 
-        @media (max-width: 550px) {
-            .container { padding: 1.5rem; }
-            .frase { font-size: 0.9rem; padding: 18px; }
-            .corazon-flotante { font-size: 2.5rem; }
-            .btn-whatsapp { font-size: 0.75rem; padding: 8px 10px; }
-        }
-    </style>
+  .notif-pista{
+    position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-200px);
+    z-index:150;
+    background:linear-gradient(135deg,#f4e4c1,#e8d4a8);
+    border:3px solid #8b6914;border-radius:16px;
+    padding:16px 24px;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);
+    color:#3a2810;font-family:'Georgia',serif;
+    transition:all .5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    max-width:90vw;min-width:280px;
+  }
+  .notif-pista.visible{transform:translateX(-50%) translateY(0);}
+  .notif-pista .icono{font-size:2rem;margin-bottom:6px;}
+  .notif-pista .titulo{font-size:.95rem;font-weight:bold;color:#5a3a10;margin-bottom:4px;}
+  .notif-pista .texto{font-size:.85rem;color:#6b4a20;font-style:italic;}
+
+  .modal{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;display:none;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:16px;}
+  .modal.activo{display:flex;animation:fadeIn .2s ease;}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  .modal-box{background:linear-gradient(160deg,#3d0a24,#7a1140);border:2px solid #ffd166;border-radius:24px;max-width:600px;width:100%;max-height:88vh;overflow-y:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.6);position:relative;animation:scaleIn .25s ease;}
+  @keyframes scaleIn{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .modal-box h2{color:#ffd166;text-align:center;margin-bottom:14px;font-size:1.3rem;}
+  .cerrar{position:absolute;top:14px;right:18px;background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;}
+
+  .pergamino{background:linear-gradient(135deg,#f4e4c1 0%,#e8d4a8 50%,#f4e4c1 100%);border:2px solid #8b6914;border-radius:12px;padding:24px 20px;position:relative;box-shadow:inset 0 0 40px rgba(139,105,20,0.25),0 10px 30px rgba(0,0,0,.5);color:#3a2810;font-family:'Georgia',serif;}
+  .pergamino::before{content:'';position:absolute;top:6px;left:6px;right:6px;bottom:6px;border:1px dashed #8b6914;border-radius:8px;pointer-events:none;opacity:.5;}
+  .pergamino h2{color:#5a3a10 !important;text-align:center;font-family:'Georgia',serif;font-size:1.4rem;margin-bottom:16px;letter-spacing:1px;}
+  .pergamino .lugar{text-align:center;font-style:italic;color:#6b4a20;font-size:.95rem;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(139,105,20,.3);}
+  .pista-pergamino{background:rgba(255,255,255,.4);border-left:4px solid #8b6914;border-radius:8px;padding:12px 14px;margin:10px 0;font-size:.92rem;line-height:1.6;color:#3a2810;animation:aparecer .5s ease;}
+  .pista-pergamino .etiqueta{display:block;font-weight:bold;color:#8b6914;font-size:.75rem;letter-spacing:2px;margin-bottom:5px;text-transform:uppercase;}
+  .pista-pergamino.bloqueada{background:rgba(180,160,120,.25);border-left-color:#a08850;color:#7a5f30;font-style:italic;}
+
+  .poema-box{
+    background:linear-gradient(135deg,#f4e4c1 0%,#e8d4a8 50%,#f4e4c1 100%);
+    border:2px solid #8b6914;border-radius:12px;padding:26px 22px;
+    position:relative;color:#3a2810;font-family:'Georgia',serif;
+    text-align:center;
+    box-shadow:inset 0 0 40px rgba(139,105,20,0.25),0 10px 30px rgba(0,0,0,.5);
+  }
+  .poema-box::before{content:'';position:absolute;top:6px;left:6px;right:6px;bottom:6px;border:1px dashed #8b6914;border-radius:8px;pointer-events:none;opacity:.5;}
+  .poema-box .cora{font-size:3rem;margin-bottom:10px;}
+  .poema-box .titulo-poema{font-size:1.1rem;font-weight:bold;color:#5a3a10;margin-bottom:16px;letter-spacing:1px;}
+  .poema-box .texto-poema{font-size:.95rem;line-height:1.8;color:#3a2810;white-space:pre-wrap;font-style:italic;margin-bottom:20px;}
+  .poema-box .codigo-poema{display:inline-block;padding:10px 20px;background:#1a0a14;border:2px dashed #8b6914;border-radius:10px;font-family:monospace;font-size:.95rem;color:#8b6914;letter-spacing:2px;font-weight:bold;}
+
+  .cupones-mapa{position:relative;padding:20px 0;}
+  .camino-cupones{position:relative;padding-left:50px;}
+  .camino-cupones::before{content:'';position:absolute;left:22px;top:0;bottom:0;width:4px;background:repeating-linear-gradient(180deg,#ff5c8a 0,#ff5c8a 8px,transparent 8px,transparent 16px);border-radius:2px;}
+  .cupon-camino{position:relative;background:linear-gradient(135deg,#4a0f2e,#7a1140);border:2px solid rgba(255,209,102,.3);border-radius:14px;padding:14px 16px;margin:12px 0;transition:.25s;cursor:pointer;}
+  .cupon-camino::before{content:attr(data-num);position:absolute;left:-34px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff5c8a,#c9184a);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.75rem;color:#fff;border:2px solid #ffd166;z-index:2;}
+  .cupon-camino.completado{opacity:.6;border-color:#4CAF50;background:linear-gradient(135deg,#1a3d1a,#2a5a2a);}
+  .cupon-camino.completado::before{background:linear-gradient(135deg,#4CAF50,#2e7d32);content:'✓';}
+  .cupon-camino:hover{transform:translateX(6px);border-color:#ffd166;}
+  .cupon-camino .titulo{color:#ffd166;font-weight:bold;font-size:.95rem;margin-bottom:4px;}
+  .cupon-camino .desc{color:#ffe3ee;font-size:.8rem;line-height:1.4;}
+  .cupon-camino .fecha{color:#c9a3b6;font-size:.7rem;margin-top:6px;font-style:italic;}
+  .btn-canjear-cupon{display:block;width:100%;margin-top:10px;padding:8px 16px;background:linear-gradient(90deg,#ff5c8a,#c9184a);border:none;border-radius:20px;color:#fff;font-weight:bold;cursor:pointer;font-size:.8rem;}
+
+  /* ============ PUZZLE CON PIEZAS VISIBLES ============ */
+  .puzzle-board{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    grid-template-rows:repeat(3, 1fr);
+    gap:3px;
+    width:min(330px, 88vw);
+    height:min(330px, 88vw);
+    margin:20px auto;
+    background:#0a0510;
+    border:4px solid #ffd166;
+    border-radius:16px;
+    padding:3px;
+    box-shadow:0 10px 40px rgba(255,92,138,.5), 0 0 0 3px rgba(255,209,102,.3);
+  }
+  .puzzle-piece{
+    width:100%;
+    height:100%;
+    background-repeat:no-repeat;
+    background-size:300% 300%;
+    border-radius:5px;
+    cursor:pointer;
+    transition:transform .15s, box-shadow .15s, border-color .15s;
+    border:2px solid transparent;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    position:relative;
+  }
+  .puzzle-piece:active{
+    transform:scale(0.95);
+  }
+  .puzzle-piece.seleccionada{
+    border-color:#ffd166;
+    box-shadow:0 0 20px #ffd166, inset 0 0 20px rgba(255,209,102,.4);
+    transform:scale(1.05);
+    z-index:10;
+  }
+  .puzzle-piece.correcta{
+    border-color:rgba(76,175,80,.9);
+    box-shadow:0 0 10px rgba(76,175,80,.6);
+  }
+  .puzzle-info{text-align:center;color:#ffb3c9;font-size:.85rem;margin-bottom:6px;}
+  .puzzle-score{text-align:center;color:#ffd166;font-size:1.1rem;font-weight:bold;margin:10px 0;padding:10px;background:rgba(255,209,102,.1);border-radius:10px;}
+
+  .confeti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200;overflow:hidden;}
+  .confeti-piece{position:absolute;width:10px;height:10px;animation:caer 3s ease-in forwards;}
+  @keyframes caer{0%{transform:translateY(-100vh) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
+
+  .selfie-video{width:min(300px,85vw);height:min(300px,85vw);background:#000;border-radius:14px;border:3px solid #ffd166;object-fit:cover;display:block;margin:0 auto;}
+  .selfie-calendario{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:14px;}
+  .selfie-dia{aspect-ratio:1;border-radius:8px;background:#2a0f1e;border:1px solid rgba(255,209,102,.2);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#c9a3b6;overflow:hidden;position:relative;}
+  .selfie-dia.tiene-foto{background-size:cover;background-position:center;border:2px solid #ff5c8a;cursor:pointer;}
+  .selfie-dia.hoy{border:2px solid #ffd166;box-shadow:0 0 12px rgba(255,209,102,.6);}
+
+  /* ============ FECHAS ESPECIALES ============ */
+  .fecha-card{
+    background:linear-gradient(135deg,#4a0f2e,#7a1140);
+    border:2px solid rgba(255,209,102,.4);
+    border-radius:20px;
+    padding:20px;
+    margin:14px 0;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 6px 20px rgba(0,0,0,.4);
+  }
+  .fecha-card::before{
+    content:'';
+    position:absolute;
+    top:-30px;right:-30px;
+    width:100px;height:100px;
+    background:radial-gradient(circle,rgba(255,92,138,.4),transparent 70%);
+    border-radius:50%;
+  }
+  .fecha-card .icono-grande{
+    font-size:2.5rem;
+    margin-bottom:10px;
+    display:block;
+    animation:latidoIcono 2s ease-in-out infinite;
+  }
+  @keyframes latidoIcono{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.1);}
+  }
+  .fecha-card h3{
+    color:#ffd166;
+    font-size:1.15rem;
+    margin-bottom:8px;
+  }
+  .fecha-card .fecha-texto{
+    color:#ffe3ee;
+    font-size:.95rem;
+    margin-bottom:6px;
+    font-weight:500;
+  }
+  .fecha-card .dias-restantes{
+    display:inline-block;
+    background:linear-gradient(90deg,#ff5c8a,#c9184a);
+    color:#fff;
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:.85rem;
+    font-weight:bold;
+    margin-top:8px;
+    box-shadow:0 3px 10px rgba(255,92,138,.4);
+  }
+  .fecha-card .detalle{
+    color:#ffb3c9;
+    font-size:.75rem;
+    margin-top:8px;
+    font-style:italic;
+  }
+  .fecha-card.hoy{
+    border-color:#ffd166;
+    background:linear-gradient(135deg,#7a1140,#c9184a);
+    animation:pulsoFecha 2s ease-in-out infinite;
+  }
+  @keyframes pulsoFecha{
+    0%,100%{box-shadow:0 6px 20px rgba(0,0,0,.4);}
+    50%{box-shadow:0 6px 30px rgba(255,209,102,.8);}
+  }
+  .fecha-card .confeti-fecha{
+    position:absolute;
+    top:10px;right:10px;
+    font-size:1.5rem;
+    animation:latidoIcono 1s ease-in-out infinite;
+  }
+
+  .calendario-mensual{
+    background:rgba(26,10,20,.6);
+    border-radius:16px;
+    padding:16px;
+    margin-top:16px;
+    border:1px solid rgba(255,209,102,.2);
+  }
+  .calendario-mensual h3{
+    text-align:center;
+    color:#ffd166;
+    margin-bottom:12px;
+    font-size:1rem;
+  }
+  .calendario-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:4px;
+  }
+  .calendario-dia-header{
+    text-align:center;
+    font-size:.7rem;
+    color:#ffb3c9;
+    font-weight:bold;
+    padding:6px 0;
+  }
+  .calendario-dia{
+    aspect-ratio:1;
+    border-radius:8px;
+    background:rgba(74,15,46,.5);
+    border:1px solid rgba(255,209,102,.15);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-size:.75rem;
+    color:#ffe3ee;
+    position:relative;
+    padding:2px;
+  }
+  .calendario-dia.es-hoy{
+    background:linear-gradient(135deg,#ff5c8a,#c9184a);
+    border-color:#ffd166;
+    font-weight:bold;
+  }
+  .calendario-dia.es-aniversario{
+    background:linear-gradient(135deg,#7a1140,#c9184a);
+    border-color:#ffd166;
+  }
+  .calendario-dia.es-cumple-el{
+    background:linear-gradient(135deg,#1976D2,#0D47A1);
+    border-color:#64B5F6;
+  }
+  .calendario-dia.es-cumple-ella{
+    background:linear-gradient(135deg,#9C27B0,#6A1B9A);
+    border-color:#CE93D8;
+  }
+  .calendario-dia .emoji-dia{
+    font-size:.85rem;
+    line-height:1;
+  }
+
+  .leyenda-fechas{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px solid rgba(255,209,102,.2);
+  }
+  .leyenda-fechas-item{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-size:.7rem;
+    color:#ffe3ee;
+  }
+  .leyenda-fechas-color{
+    width:12px;height:12px;
+    border-radius:4px;
+    border:1px solid rgba(255,255,255,.3);
+  }
+
+  #burbujaDias{
+    position:fixed;bottom:20px;left:20px;z-index:60;
+    background:linear-gradient(135deg,#ff5c8a,#c9184a);
+    border:3px solid #ffd166;border-radius:50px;
+    padding:10px 18px;color:#fff;font-weight:bold;font-size:.9rem;
+    box-shadow:0 6px 20px rgba(255,92,138,.5), 0 0 0 3px rgba(255,209,102,.2);
+    display:none;align-items:center;gap:8px;
+    animation:flotarDias 3s ease-in-out infinite;
+    backdrop-filter:blur(8px);user-select:none;
+  }
+  #burbujaDias.visible{display:flex;}
+  #burbujaDias .corazon{font-size:1.2rem;animation:latidoCorazon 1.5s ease-in-out infinite;}
+  #burbujaDias .numero{font-size:1.1rem;color:#ffd166;text-shadow:0 2px 4px rgba(0,0,0,.3);}
+  #burbujaDias .texto{font-size:.75rem;font-weight:500;opacity:.95;}
+  @keyframes flotarDias{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  @keyframes latidoCorazon{0%,100%{transform:scale(1);}50%{transform:scale(1.25);}}
+
+  #toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(120px);background:linear-gradient(90deg,#ff5c8a,#c9184a);color:#fff;padding:14px 26px;border-radius:40px;z-index:200;font-weight:bold;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:.4s;pointer-events:none;max-width:90vw;text-align:center;font-size:.85rem;}
+  #toast.visible{transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:600px){
+    .chip{font-size:.7rem;padding:6px 10px;}
+    .pergamino{padding:16px 14px;}
+    #menuPrincipal{padding:20px 14px;}
+    .menu-header h1{font-size:1.4rem;}
+    .menu-opcion{padding:14px 8px;min-height:105px;}
+    .menu-opcion .icono{font-size:1.9rem;}
+    .menu-opcion .texto strong{font-size:.8rem;}
+    .menu-opcion .texto small{font-size:.6rem;}
+    #indicadorDistancia{padding:8px 10px;min-width:150px;top:60px;}
+    #indicadorDistancia .distancia{font-size:1.1rem;}
+    #brujulaNorte{width:54px;height:54px;top:60px;}
+    #burbujaDias{bottom:15px;left:15px;padding:8px 14px;font-size:.8rem;}
+    #burbujaDias .numero{font-size:.95rem;}
+    #burbujaDias .texto{font-size:.65rem;}
+    .fecha-card{padding:16px;}
+    .fecha-card .icono-grande{font-size:2rem;}
+    .calendario-dia{font-size:.65rem;}
+  }
+
+  @media(max-width:380px){
+    .menu-grid{grid-template-columns:1fr;}
+    .menu-opcion{flex-direction:row;justify-content:flex-start;text-align:left;min-height:auto;padding:14px 16px;}
+    .menu-opcion .texto{align-items:flex-start;}
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="corazon-fijo">💖</div>
-            <div class="bienvenida" id="mensajeBienvenida">
-                ✨ Gracias por venir hoy ✨
-            </div>
-        </div>
-        
-        <div class="fecha-sutil">14 de diciembre de 2019</div>
-        
-        <div class="contador" id="contadorDias">
-            Calculando...
-        </div>
-        
-        <div class="foto">
-            <img id="fotoNovia" src="https://i.imgur.com/NRfWZRG.jpg" alt="Mi amor">
-        </div>
-        
-        <div class="frase" id="fraseDiaria">
-            ✨ Cargando poema especial... ✨
-        </div>
-        
-        <div class="verificacion">
-            <label>🔐 Escribe tu palabra secreta:</label>
-            <input type="text" id="palabraInput" placeholder="Palabra secreta" autocomplete="off">
-            <div class="botones-whatsapp">
-                <button class="btn-whatsapp" id="whatsappBtnElla">📱 Enviar mensaje a Mi Rey</button>
-                <button class="btn-whatsapp" id="whatsappBtnKevin">📱 Enviar mensaje a Mi Reina</button>
-            </div>
-            <div id="mensajeValidacion" class="mensaje-error"></div>
-        </div>
-        
-        <div class="despedida" id="mensajeDespedida">
-            🌙 Amor, te espero mañana para decirte cuánto te amo...
-        </div>
+<div id="app">
+
+  <div class="corazon-flotante" style="left:10%;animation-delay:0s;">💖</div>
+  <div class="corazon-flotante" style="left:25%;animation-delay:2s;">💗</div>
+  <div class="corazon-flotante" style="left:50%;animation-delay:4s;">💕</div>
+  <div class="corazon-flotante" style="left:70%;animation-delay:1s;">💘</div>
+  <div class="corazon-flotante" style="left:85%;animation-delay:3s;">💝</div>
+
+  <div class="overlay" id="intro">
+    <h1>💖 Mapa del Amor 💖</h1>
+    <p>Un tesoro escondido cada dia, en algun rincon del mundo.<br>Sigan las pistas, encuentren el lugar...<br>y desbloqueen un poema escrito para ustedes. 🌹</p>
+    <button class="btn" id="btnEmpezar">Comenzar la aventura ✨</button>
+  </div>
+
+  <div class="overlay" id="login" style="display:none;">
+    <h1>🔐 Quien eres?</h1>
+    <p>Escribe tu palabra secreta</p>
+    <input type="password" id="palabra" placeholder="palabra secreta" autocomplete="off">
+    <button class="btn" id="btnEntrar">Entrar 💘</button>
+  </div>
+
+  <!-- MENÚ PRINCIPAL NUEVO DISEÑO -->
+  <div id="menuPrincipal">
+    <div class="menu-header">
+      <span class="corazon-menu">💖</span>
+      <h1>Mapa del Amor</h1>
+      <div class="subtitulo">Un viaje juntos por el mundo</div>
     </div>
+
+    <div class="menu-grid">
+      <button class="menu-opcion" onclick="abrirSeccion('mapa')">
+        <span class="icono">🗺️</span>
+        <span class="texto">
+          <strong>Mapa del Tesoro</strong>
+          <small>Encuentra el tesoro del día</small>
+        </span>
+      </button>
+
+      <button class="menu-opcion" onclick="abrirSeccion('cupones')">
+        <span class="icono">🎟️</span>
+        <span class="texto">
+          <strong>Cupones</strong>
+          <small>100 por descubrir</small>
+        </span>
+      </button>
+
+      <button class="menu-opcion" onclick="abrirSeccion('galeria')">
+        <span class="icono">🖼️</span>
+        <span class="texto">
+          <strong>Galería</strong>
+          <small>Tesoros encontrados</small>
+        </span>
+      </button>
+
+      <button class="menu-opcion" onclick="abrirSeccion('puzzle')">
+        <span class="icono">🧩</span>
+        <span class="texto">
+          <strong>Puzzle</strong>
+          <small>Arma nuestra foto</small>
+        </span>
+      </button>
+
+      <button class="menu-opcion" onclick="abrirSeccion('selfie')">
+        <span class="icono">📸</span>
+        <span class="texto">
+          <strong>Selfie</strong>
+          <small>Recuerdo del día</small>
+        </span>
+      </button>
+
+      <button class="menu-opcion" onclick="abrirSeccion('fechas')">
+        <span class="icono">📅</span>
+        <span class="texto">
+          <strong>Fechas</strong>
+          <small>Aniv. y cumpleaños</small>
+        </span>
+      </button>
+
+      <button class="menu-opcion" onclick="abrirSeccion('adivinanzas')">
+        <span class="icono">💭</span>
+        <span class="texto">
+          <strong>Adivinanzas</strong>
+          <small>Uno pregunta, otro responde</small>
+        </span>
+      </button>
+    </div>
+
+    <div class="menu-footer">
+      Hecho con 💖 para nosotros
+    </div>
+  </div>
+
+  <div class="seccion" id="seccion-mapa">
+    <div id="map"></div>
+    <div id="hud">
+      <div class="chip">💕 <strong id="chipDias">0</strong> dias</div>
+    </div>
+    <button class="btn-salir-mapa" onclick="cerrarSeccion()">⬅️ Salir</button>
+    <div id="brujulaNorte">
+      <span class="norte">N</span>
+      <span class="sur">S</span>
+      <span class="este">E</span>
+      <span class="oeste">O</span>
+      <span class="puntoCentral"></span>
+    </div>
+    <div id="indicadorDistancia">
+      <div class="titulo">🎯 Distancia</div>
+      <div class="distancia" id="distanciaTexto">-- m</div>
+      <div class="brujula">
+        <div class="direccion" id="direccionTexto">--</div>
+      </div>
+      <div class="consejo" id="consejoTexto">Muevete por el mapa</div>
+    </div>
+    <div class="notif-direccion" id="notifDireccion">
+      <div class="flecha" id="notifFlecha">↑</div>
+      <div class="texto" id="notifTexto">Ve hacia el norte</div>
+    </div>
+    <div style="position:absolute;right:16px;bottom:16px;z-index:20;">
+      <button class="btn" id="btnPergamino" style="margin:0;padding:14px 22px;border-radius:40px;font-size:1rem;animation:pulso 2s ease-in-out infinite;">📜 Ver Pistas</button>
+    </div>
+  </div>
+
+  <div class="seccion" id="seccion-cupones">
+    <div class="seccion-header">
+      <button class="btn-volver" onclick="cerrarSeccion()">⬅️ Salir</button>
+      <div class="seccion-titulo">🎟️ Cupones del Amor</div>
+    </div>
+    <div class="seccion-body"><div id="cuponesContainer"></div></div>
+  </div>
+
+  <div class="seccion" id="seccion-galeria">
+    <div class="seccion-header">
+      <button class="btn-volver" onclick="cerrarSeccion()">⬅️ Salir</button>
+      <div class="seccion-titulo">🖼️ Galería de Recuerdos</div>
+    </div>
+    <div class="seccion-body"><div id="galeriaContainer"></div></div>
+  </div>
+
+  <div class="seccion" id="seccion-puzzle">
+    <div class="seccion-header">
+      <button class="btn-volver" onclick="cerrarSeccion()">⬅️ Salir</button>
+      <div class="seccion-titulo">🧩 Puzzle del Día</div>
+    </div>
+    <div class="seccion-body"><div id="puzzleContainer"></div></div>
+  </div>
+
+  <div class="seccion" id="seccion-selfie">
+    <div class="seccion-header">
+      <button class="btn-volver" onclick="cerrarSeccion()">⬅️ Salir</button>
+      <div class="seccion-titulo">📸 Selfie del Día</div>
+    </div>
+    <div class="seccion-body"><div id="selfieContainer"></div></div>
+  </div>
+
+  <div class="seccion" id="seccion-fechas">
+    <div class="seccion-header">
+      <button class="btn-volver" onclick="cerrarSeccion()">⬅️ Salir</button>
+      <div class="seccion-titulo">📅 Fechas Especiales</div>
+    </div>
+    <div class="seccion-body"><div id="fechasContainer"></div></div>
+  </div>
+
+  <div class="seccion" id="seccion-adivinanzas">
+    <div class="seccion-header">
+      <button class="btn-volver" onclick="cerrarSeccion()">⬅️ Salir</button>
+      <div class="seccion-titulo">💭 Adivinanzas del Amor</div>
+    </div>
+    <div class="seccion-body"><div id="adivinanzasContainer"></div></div>
+  </div>
+
+  <div class="modal" id="modalPergamino">
+    <div class="modal-box" style="background:none;border:none;padding:0;box-shadow:none;">
+      <div class="pergamino">
+        <button class="cerrar" onclick="cerrarModal('modalPergamino')" style="color:#8b6914;">✖</button>
+        <h2 id="pergaminoTitulo">📜 Pistas del Tesoro</h2>
+        <div class="lugar" id="pergaminoLugar">--</div>
+        <div id="pergaminoPistas"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalTesoro">
+    <div class="modal-box" style="background:none;border:none;padding:0;box-shadow:none;">
+      <div class="poema-box">
+        <button class="cerrar" onclick="cerrarModal('modalTesoro')" style="color:#8b6914;">✖</button>
+        <div class="cora">💖</div>
+        <div class="titulo-poema">✨ ¡Encontraste el Tesoro! ✨</div>
+        <div class="texto-poema" id="poemaTexto"></div>
+        <span class="codigo-poema" id="codigoTexto"></span>
+        <div style="margin-top:20px;">
+          <button class="btn" id="btnAvisar" style="margin-top:0;">💌 Avisar a mi amor</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalSelfieVer">
+    <div class="modal-box" style="max-width:90vw;background:none;border:none;padding:0;">
+      <button class="cerrar" onclick="cerrarModal('modalSelfieVer')" style="background:rgba(0,0,0,.6);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;padding:0;">✖</button>
+      <img id="selfieVerImg" style="width:min(400px,88vw);border-radius:16px;border:3px solid #ffd166;box-shadow:0 20px 60px rgba(0,0,0,.6);display:block;margin:0 auto;">
+      <p id="selfieVerFecha" style="text-align:center;margin-top:12px;color:#ffd166;font-weight:bold;"></p>
+    </div>
+  </div>
+
+  <div id="burbujaDias">
+    <span class="corazon">💕</span>
+    <span class="numero" id="burbujaNumero">0</span>
+    <span class="texto">días juntos</span>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script>
+var CONFIG = {
+  ESTUARDO: { palabra:"mavie", nombre:"Estuardo", whatsapp:"50237418036", codigo:"TESORO-E-4829-GT" },
+  ANA:   { palabra:"carino", nombre:"Ana", whatsapp:"50248584358", codigo:"TESORO-A-4829-GT" },
+  INICIO: new Date("2019-12-14T00:00:00"),
+  CASA: [14.6349, -90.5069],
+  HOY: new Date().toISOString().slice(0,10),
+  DIST_TESORO: 10,
+  DIST_PISTA_1: 50000,
+  DIST_PISTA_2: 10000,
+  DIST_PISTA_3: 1000,
+  FOTO_PAREJA: "https://i.imgur.com/NRfWZRG.jpg",
+  CUMPLE_ESTUARDO: { dia: 10, mes: 2, nombre: "Estuardo" },
+  CUMPLE_ANA: { dia: 5, mes: 8, nombre: "Ana" },
+  ANIVERSARIO: { dia: 14, mes: 12, año: 2019, nombre: "Nuestro Aniversario" }
+};
+
+// LUGARES (mismo array que antes)
+var LUGARES = [
+  {n:"Antigua Guatemala", lat:14.5586, lng:-90.7295, p1:"🌎 Continente: America Central", p2:"🇬🇹 Pais: Guatemala", p3:"🏛️ Ciudad colonial con calles empedradas. Arco de Santa Catalina."},
+  {n:"Lago de Atitlan", lat:14.6907, lng:-91.2025, p1:"🌎 Continente: America Central", p2:"🇬🇹 Pais: Guatemala", p3:"🏞️ Lago rodeado de volcanes. Panajachel es su puerta."},
+  {n:"Tikal", lat:17.2220, lng:-89.6237, p1:"🌎 Continente: America Central", p2:"🇬🇹 Pais: Guatemala", p3:"🏛️ Ruinas mayas en la selva. Templo del Gran Jaguar."},
+  {n:"Semuc Champey", lat:15.5333, lng:-89.9667, p1:"🌎 Continente: America Central", p2:"🇬🇹 Pais: Guatemala", p3:"🏞️ Pozas turquesa naturales. Alta Verapaz."},
+  {n:"Ciudad de Guatemala", lat:14.6349, lng:-90.5069, p1:"🌎 Continente: America Central", p2:"🇬🇹 Pais: Guatemala", p3:"🏛️ Capital del pais. Plaza de la Constitucion."},
+  {n:"Monterrico", lat:13.8925, lng:-90.4822, p1:"🌎 Continente: America Central", p2:"🇬🇹 Pais: Guatemala", p3:"🏖️ Playa de arena volcanica. Tortugas llegan a desovar."},
+  {n:"Lago Peten Itza", lat:16.9333, lng:-89.8667, p1:"🌎 Continente: America Central", p2:"🇬🇹 Pais: Guatemala", p3:"🏞️ Isla de Flores al centro. Peten."},
+  {n:"Quetzaltenango", lat:14.8347, lng:-91.5183, p1:"🌎 Continente: America Central", p2:"🇬🇹 Pais: Guatemala", p3:"🏛️ Ciudad altiplanica. Plaza central con catedral."},
+  {n:"Zaculeu", lat:15.3333, lng:-91.4833, p1:"🌎 Continente: America Central", p2:"🇬🇹 Pais: Guatemala", p3:"🏛️ Ruinas mayas cerca de Huehue. Reino Mam."},
+  {n:"Iximche", lat:14.7333, lng:-90.9667, p1:"🌎 Continente: America Central", p2:"🇬🇹 Pais: Guatemala", p3:"🏛️ Ruinas mayas cerca de Tecpan. Chimaltenango."},
+  {n:"Ciudad de Mexico", lat:19.4326, lng:-99.1332, p1:"🌎 Continente: America del Norte", p2:"🇲🇽 Pais: Mexico", p3:"🏛️ Capital del pais. Zocalo y Catedral."},
+  {n:"Teotihuacan", lat:19.6925, lng:-98.8438, p1:"🌎 Continente: America del Norte", p2:"🇲🇽 Pais: Mexico", p3:"🏛️ Piramides del Sol y la Luna."},
+  {n:"Chichen Itza", lat:20.6843, lng:-88.5678, p1:"🌎 Continente: America del Norte", p2:"🇲🇽 Pais: Mexico", p3:"🏛️ Piramide maya. Yucatan."},
+  {n:"Tulum", lat:20.2148, lng:-87.4291, p1:"🌎 Continente: America del Norte", p2:"🇲🇽 Pais: Mexico", p3:"🏛️ Ruinas frente al mar Caribe."},
+  {n:"Cancun", lat:21.1619, lng:-86.8515, p1:"🌎 Continente: America del Norte", p2:"🇲🇽 Pais: Mexico", p3:"🏖️ Playas turquesa. Zona hotelera."},
+  {n:"Guanajuato", lat:21.0190, lng:-101.2574, p1:"🌎 Continente: America del Norte", p2:"🇲🇽 Pais: Mexico", p3:"🏛️ Ciudad colorida. Callejones y tuneles."},
+  {n:"Oaxaca", lat:17.0732, lng:-96.7266, p1:"🌎 Continente: America del Norte", p2:"🇲🇽 Pais: Mexico", p3:"🏛️ Cuna del mezcal. Comida y artesania."},
+  {n:"Torre Eiffel", lat:48.8584, lng:2.2945, p1:"🌎 Continente: Europa", p2:"🇫🇷 Pais: Francia", p3:"🏛️ La dama de hierro. Campo de Marte, Paris."},
+  {n:"Louvre", lat:48.8606, lng:2.3376, p1:"🌎 Continente: Europa", p2:"🇫🇷 Pais: Francia", p3:"🏛️ Museo mas visitado del mundo. La Mona Lisa."},
+  {n:"Notre Dame", lat:48.8530, lng:2.3499, p1:"🌎 Continente: Europa", p2:"🇫🇷 Pais: Francia", p3:"⛪ Catedral gotica sobre el Sena. Paris."},
+  {n:"Arco del Triunfo", lat:48.8738, lng:2.2950, p1:"🌎 Continente: Europa", p2:"🇫🇷 Pais: Francia", p3:"🏛️ Arco monumental. Campos Elíseos, Paris."},
+  {n:"Versalles", lat:48.8049, lng:2.1204, p1:"🌎 Continente: Europa", p2:"🇫🇷 Pais: Francia", p3:"🏛️ Palacio de Luis XIV. Jardines inmensos."},
+  {n:"Coliseo Romano", lat:41.8902, lng:12.4922, p1:"🌎 Continente: Europa", p2:"🇮🇹 Pais: Italia", p3:"🏛️ Anfiteatro de gladiadores. Roma."},
+  {n:"Fontana di Trevi", lat:41.9009, lng:12.4833, p1:"🌎 Continente: Europa", p2:"🇮🇹 Pais: Italia", p3:"⛲ Fuente para pedir un deseo. Roma."},
+  {n:"Vaticano", lat:41.9022, lng:12.4539, p1:"🌎 Continente: Europa", p2:"🇻🇦 Pais: Ciudad del Vaticano", p3:"⛪ Basilica mas grande del mundo. Capilla Sixtina."},
+  {n:"Venecia", lat:45.4408, lng:12.3155, p1:"🌎 Continente: Europa", p2:"🇮🇹 Pais: Italia", p3:"🏛️ Ciudad de canales. Puente de Rialto."},
+  {n:"Pisa", lat:43.7230, lng:10.3966, p1:"🌎 Continente: Europa", p2:"🇮🇹 Pais: Italia", p3:"🏛️ Torre inclinada. Piazza dei Miracoli."},
+  {n:"Florencia", lat:43.7731, lng:11.2560, p1:"🌎 Continente: Europa", p2:"🇮🇹 Pais: Italia", p3:"🏛️ Cuna del Renacimiento."},
+  {n:"Pompeya", lat:40.7497, lng:14.4869, p1:"🌎 Continente: Europa", p2:"🇮🇹 Pais: Italia", p3:"🏛️ Ciudad romana sepultada por el Vesubio."},
+  {n:"Barcelona", lat:41.4036, lng:2.1744, p1:"🌎 Continente: Europa", p2:"🇪🇸 Pais: Espana", p3:"⛪ Basilica de Gaudi. Sagrada Familia."},
+  {n:"Madrid", lat:40.4169, lng:-3.7035, p1:"🌎 Continente: Europa", p2:"🇪🇸 Pais: Espana", p3:"🏛️ Puerta del Sol."},
+  {n:"Sevilla", lat:37.3772, lng:-5.9868, p1:"🌎 Continente: Europa", p2:"🇪🇸 Pais: Espana", p3:"🏛️ Plaza de Espana. Andalucia."},
+  {n:"Granada", lat:37.1761, lng:-3.5881, p1:"🌎 Continente: Europa", p2:"🇪🇸 Pais: Espana", p3:"🏛️ La Alhambra."},
+  {n:"Big Ben", lat:51.5007, lng:-0.1246, p1:"🌎 Continente: Europa", p2:"🇬🇧 Pais: Inglaterra", p3:"🏛️ Reloj mas famoso. Londres."},
+  {n:"Tower Bridge", lat:51.5055, lng:-0.0754, p1:"🌎 Continente: Europa", p2:"🇬🇧 Pais: Inglaterra", p3:"🌉 Puente levadizo. Londres."},
+  {n:"Buckingham", lat:51.5014, lng:-0.1419, p1:"🌎 Continente: Europa", p2:"🇬🇧 Pais: Inglaterra", p3:"🏛️ Palacio real. Londres."},
+  {n:"Stonehenge", lat:51.1789, lng:-1.8262, p1:"🌎 Continente: Europa", p2:"🇬🇧 Pais: Inglaterra", p3:"🏛️ Circulo de piedras neolitico."},
+  {n:"Edimburgo", lat:55.9486, lng:-3.1999, p1:"🌎 Continente: Europa", p2:"🏴 Pais: Escocia", p3:"🏰 Castillo sobre roca volcanica."},
+  {n:"Dublin", lat:53.3438, lng:-6.2546, p1:"🌎 Continente: Europa", p2:"🇮🇪 Pais: Irlanda", p3:"🏛️ Trinity College."},
+  {n:"Amsterdam", lat:52.3676, lng:4.9041, p1:"🌎 Continente: Europa", p2:"🇳🇱 Pais: Paises Bajos", p3:"🏛️ Ciudad de bicicletas. Canales."},
+  {n:"Bruselas", lat:50.8467, lng:4.3525, p1:"🌎 Continente: Europa", p2:"🇧🇪 Pais: Belgica", p3:"🏛️ Grand Place."},
+  {n:"Berlin", lat:52.5163, lng:13.3777, p1:"🌎 Continente: Europa", p2:"🇩🇪 Pais: Alemania", p3:"🏛️ Puerta de Brandeburgo."},
+  {n:"Munich", lat:48.1374, lng:11.5755, p1:"🌎 Continente: Europa", p2:"🇩🇪 Pais: Alemania", p3:"🏛️ Centro de Baviera. Oktoberfest."},
+  {n:"Neuschwanstein", lat:47.5576, lng:10.7498, p1:"🌎 Continente: Europa", p2:"🇩🇪 Pais: Alemania", p3:"🏰 Castillo de cuento. Baviera."},
+  {n:"Praga", lat:50.0865, lng:14.4114, p1:"🌎 Continente: Europa", p2:"🇨🇿 Pais: Republica Checa", p3:"🏛️ Puente Carlos."},
+  {n:"Viena", lat:48.1845, lng:16.3122, p1:"🌎 Continente: Europa", p2:"🇦🇹 Pais: Austria", p3:"🏛️ Palacio de Schonbrunn."},
+  {n:"Budapest", lat:47.5072, lng:19.0455, p1:"🌎 Continente: Europa", p2:"🇭🇺 Pais: Hungria", p3:"🏛️ Parlamento junto al Danubio."},
+  {n:"Atenas", lat:37.9715, lng:23.7267, p1:"🌎 Continente: Europa", p2:"🇬🇷 Pais: Grecia", p3:"🏛️ Acropolis y Partenon."},
+  {n:"Santorini", lat:36.4618, lng:25.3762, p1:"🌎 Continente: Europa", p2:"🇬🇷 Pais: Grecia", p3:"🏖️ Casas blancas y azules."},
+  {n:"Mykonos", lat:37.4467, lng:25.3289, p1:"🌎 Continente: Europa", p2:"🇬🇷 Pais: Grecia", p3:"🏖️ Isla de molinos de viento."},
+  {n:"Estambul", lat:41.0086, lng:28.9802, p1:"🌎 Continente: Europa/Asia", p2:"🇹🇷 Pais: Turquia", p3:"🏛️ Santa Sofia."},
+  {n:"Capadocia", lat:38.6431, lng:34.8289, p1:"🌎 Continente: Asia", p2:"🇹🇷 Pais: Turquia", p3:"🎈 Globos al amanecer."},
+  {n:"Lisboa", lat:38.6916, lng:-9.2159, p1:"🌎 Continente: Europa", p2:"🇵🇹 Pais: Portugal", p3:"🏛️ Torre de Belem."},
+  {n:"Oporto", lat:41.1579, lng:-8.6291, p1:"🌎 Continente: Europa", p2:"🇵🇹 Pais: Portugal", p3:"🍷 Cuna del vino Oporto."},
+  {n:"Dubrovnik", lat:42.6507, lng:18.0944, p1:"🌎 Continente: Europa", p2:"🇭🇷 Pais: Croacia", p3:"🏛️ Ciudad amurallada."},
+  {n:"Plitvice", lat:44.8654, lng:15.5820, p1:"🌎 Continente: Europa", p2:"🇭🇷 Pais: Croacia", p3:"🏞️ Lagos y cascadas. UNESCO."},
+  {n:"Bled", lat:46.3625, lng:14.0936, p1:"🌎 Continente: Europa", p2:"🇸🇮 Pais: Eslovenia", p3:"🏞️ Lago con isla."},
+  {n:"Cracovia", lat:50.0647, lng:19.9450, p1:"🌎 Continente: Europa", p2:"🇵🇱 Pais: Polonia", p3:"🏛️ Ciudad historica."},
+  {n:"Castillo Bran", lat:45.5149, lng:25.3672, p1:"🌎 Continente: Europa", p2:"🇷🇴 Pais: Rumania", p3:"🏰 Castillo de Dracula."},
+  {n:"Kiev", lat:50.4501, lng:30.5234, p1:"🌎 Continente: Europa", p2:"🇺🇦 Pais: Ucrania", p3:"⛪ Catedral de Santa Sofia."},
+  {n:"Moscu", lat:55.7539, lng:37.6208, p1:"🌎 Continente: Europa", p2:"🇷🇺 Pais: Rusia", p3:"🏛️ Plaza Roja."},
+  {n:"Piramides de Giza", lat:29.9792, lng:31.1342, p1:"🌎 Continente: Africa", p2:"🇪🇬 Pais: Egipto", p3:"🏛️ Ultima maravilla antigua."},
+  {n:"Luxor", lat:25.7188, lng:32.6573, p1:"🌎 Continente: Africa", p2:"🇪🇬 Pais: Egipto", p3:"🏛️ Templos faraonicos."},
+  {n:"Marrakech", lat:31.6258, lng:-7.9891, p1:"🌎 Continente: Africa", p2:"🇲🇦 Pais: Marruecos", p3:"🏛️ Plaza Jemaa el-Fna."},
+  {n:"Petra", lat:30.3285, lng:35.4444, p1:"🌎 Continente: Asia", p2:"🇯🇴 Pais: Jordania", p3:"🏛️ Ciudad tallada en roca."},
+  {n:"Mar Muerto", lat:31.5590, lng:35.4732, p1:"🌎 Continente: Asia", p2:"🇯🇴 Pais: Jordania", p3:"🏞️ El punto mas bajo de la Tierra."},
+  {n:"Jerusalen", lat:31.7767, lng:35.2345, p1:"🌎 Continente: Asia", p2:"🇮🇱 Pais: Israel", p3:"🏛️ Muro de los Lamentos."},
+  {n:"Burj Khalifa", lat:25.1972, lng:55.2744, p1:"🌎 Continente: Asia", p2:"🇦🇪 Pais: Emiratos Arabes", p3:"🏛️ Edificio mas alto del mundo."},
+  {n:"Abu Dabi", lat:24.4128, lng:54.4750, p1:"🌎 Continente: Asia", p2:"🇦🇪 Pais: Emiratos Arabes", p3:"⛪ Mezquita Sheikh Zayed."},
+  {n:"Taj Mahal", lat:27.1751, lng:78.0421, p1:"🌎 Continente: Asia", p2:"🇮🇳 Pais: India", p3:"🏛️ Mausoleo de amor. Agra."},
+  {n:"Nueva Delhi", lat:28.6129, lng:77.2295, p1:"🌎 Continente: Asia", p2:"🇮🇳 Pais: India", p3:"🏛️ India Gate."},
+  {n:"Jaipur", lat:26.9239, lng:75.8267, p1:"🌎 Continente: Asia", p2:"🇮🇳 Pais: India", p3:"🏛️ Hawa Mahal. Ciudad rosa."},
+  {n:"Katmandu", lat:27.7215, lng:85.3620, p1:"🌎 Continente: Asia", p2:"🇳🇵 Pais: Nepal", p3:"⛪ Estupa Boudhanath."},
+  {n:"Gran Muralla", lat:40.4319, lng:116.5704, p1:"🌎 Continente: Asia", p2:"🇨🇳 Pais: China", p3:"🏛️ Muralla de 20.000 km."},
+  {n:"Ciudad Prohibida", lat:39.9163, lng:116.3972, p1:"🌎 Continente: Asia", p2:"🇨🇳 Pais: China", p3:"🏛️ Palacio imperial. Beijing."},
+  {n:"Shanghai", lat:31.2397, lng:121.4900, p1:"🌎 Continente: Asia", p2:"🇨🇳 Pais: China", p3:"🏛️ Perla de Oriente."},
+  {n:"Hong Kong", lat:22.2759, lng:114.1455, p1:"🌎 Continente: Asia", p2:"🇨🇳 Pais: China", p3:"🏛️ Victoria Peak."},
+  {n:"Tokio", lat:35.6595, lng:139.7005, p1:"🌎 Continente: Asia", p2:"🇯🇵 Pais: Japon", p3:"🏛️ Shibuya."},
+  {n:"Kioto", lat:34.9671, lng:135.7727, p1:"🌎 Continente: Asia", p2:"🇯🇵 Pais: Japon", p3:"⛩️ Fushimi Inari."},
+  {n:"Monte Fuji", lat:35.3606, lng:138.7274, p1:"🌎 Continente: Asia", p2:"🇯🇵 Pais: Japon", p3:"🏞️ Volcan sagrado."},
+  {n:"Seul", lat:37.5796, lng:126.9770, p1:"🌎 Continente: Asia", p2:"🇰🇷 Pais: Corea del Sur", p3:"🏛️ Palacio Gyeongbokgung."},
+  {n:"Bangkok", lat:13.7500, lng:100.4914, p1:"🌎 Continente: Asia", p2:"🇹🇭 Pais: Tailandia", p3:"🏛️ Gran Palacio."},
+  {n:"Angkor Wat", lat:13.4125, lng:103.8670, p1:"🌎 Continente: Asia", p2:"🇰🇭 Pais: Camboya", p3:"🏛️ Templo mas grande del mundo."},
+  {n:"Bali", lat:-8.5069, lng:115.2625, p1:"🌎 Continente: Asia", p2:"🇮🇩 Pais: Indonesia", p3:"🏞️ Arrozales y templos."},
+  {n:"Borobudur", lat:-7.6079, lng:110.2038, p1:"🌎 Continente: Asia", p2:"🇮🇩 Pais: Indonesia", p3:"🏛️ Templo budista gigante."},
+  {n:"Singapur", lat:1.2834, lng:103.8607, p1:"🌎 Continente: Asia", p2:"🇸🇬 Pais: Singapur", p3:"🏛️ Marina Bay Sands."},
+  {n:"Kuala Lumpur", lat:3.1578, lng:101.7117, p1:"🌎 Continente: Asia", p2:"🇲🇾 Pais: Malasia", p3:"🏛️ Torres Petronas."},
+  {n:"Maldivas", lat:3.2028, lng:73.2207, p1:"🌎 Continente: Asia", p2:"🇲🇻 Pais: Maldivas", p3:"🏖️ Bungalos sobre el agua."},
+  {n:"Halong Bay", lat:20.9101, lng:107.1839, p1:"🌎 Continente: Asia", p2:"🇻🇳 Pais: Vietnam", p3:"🏞️ Islas de piedra caliza."},
+  {n:"Hanoi", lat:21.0285, lng:105.8542, p1:"🌎 Continente: Asia", p2:"🇻🇳 Pais: Vietnam", p3:"🏛️ Capital vietnamita."},
+  {n:"Sydney", lat:-33.8568, lng:151.2153, p1:"🌎 Continente: Oceania", p2:"🇦🇺 Pais: Australia", p3:"🏛️ Opera House."},
+  {n:"Uluru", lat:-25.3444, lng:131.0369, p1:"🌎 Continente: Oceania", p2:"🇦🇺 Pais: Australia", p3:"🏞️ Roca sagrada aborigen."},
+  {n:"Gran Barrera de Coral", lat:-18.2871, lng:147.6992, p1:"🌎 Continente: Oceania", p2:"🇦🇺 Pais: Australia", p3:"🏞️ Arrecife mas grande del mundo."},
+  {n:"Melbourne", lat:-37.8136, lng:144.9631, p1:"🌎 Continente: Oceania", p2:"🇦🇺 Pais: Australia", p3:"🏛️ Ciudad del arte."},
+  {n:"Auckland", lat:-36.8485, lng:174.7633, p1:"🌎 Continente: Oceania", p2:"🇳🇿 Pais: Nueva Zelanda", p3:"🏛️ Sky Tower."},
+  {n:"Milford Sound", lat:-44.6414, lng:167.8974, p1:"🌎 Continente: Oceania", p2:"🇳🇿 Pais: Nueva Zelanda", p3:"🏞️ Fiordo espectacular."},
+  {n:"Bora Bora", lat:-16.5004, lng:-151.7415, p1:"🌎 Continente: Oceania", p2:"🇵🇫 Pais: Polinesia Francesa", p3:"🏖️ Bungalos sobre el agua."},
+  {n:"Fiyi", lat:-17.7134, lng:178.0650, p1:"🌎 Continente: Oceania", p2:"🇫🇯 Pais: Fiyi", p3:"🏖️ Islas del Pacifico."},
+  {n:"Nueva York", lat:40.7580, lng:-73.9855, p1:"🌎 Continente: America del Norte", p2:"🇺🇸 Pais: Estados Unidos", p3:"🏛️ Times Square."},
+  {n:"Estatua de la Libertad", lat:40.6892, lng:-74.0445, p1:"🌎 Continente: America del Norte", p2:"🇺🇸 Pais: Estados Unidos", p3:"🏛️ Isla de la Libertad."},
+  {n:"Central Park", lat:40.7829, lng:-73.9654, p1:"🌎 Continente: America del Norte", p2:"🇺🇸 Pais: Estados Unidos", p3:"🏞️ Pulmon de Manhattan."},
+  {n:"Golden Gate", lat:37.8199, lng:-122.4783, p1:"🌎 Continente: America del Norte", p2:"🇺🇸 Pais: Estados Unidos", p3:"🌉 Puente rojo. San Francisco."},
+  {n:"Las Vegas", lat:36.1147, lng:-115.1728, p1:"🌎 Continente: America del Norte", p2:"🇺🇸 Pais: Estados Unidos", p3:"🏛️ Casinos y shows."},
+  {n:"Gran Canon", lat:36.0544, lng:-112.1401, p1:"🌎 Continente: America del Norte", p2:"🇺🇸 Pais: Estados Unidos", p3:"🏞️ Canon inmenso. Arizona."},
+  {n:"Miami", lat:25.7825, lng:-80.1300, p1:"🌎 Continente: America del Norte", p2:"🇺🇸 Pais: Estados Unidos", p3:"🏖️ South Beach."},
+  {n:"Toronto", lat:43.6426, lng:-79.3871, p1:"🌎 Continente: America del Norte", p2:"🇨🇦 Pais: Canada", p3:"🏛️ CN Tower."},
+  {n:"Cataratas del Niagara", lat:43.0962, lng:-79.0377, p1:"🌎 Continente: America del Norte", p2:"🇨🇦 Pais: Canada", p3:"🏞️ Cataratas gigantes."},
+  {n:"Vancouver", lat:49.3017, lng:-123.1417, p1:"🌎 Continente: America del Norte", p2:"🇨🇦 Pais: Canada", p3:"🏞️ Stanley Park."},
+  {n:"Quebec", lat:46.8139, lng:-71.2080, p1:"🌎 Continente: America del Norte", p2:"🇨🇦 Pais: Canada", p3:"🏛️ Ciudad amurallada."},
+  {n:"Cartagena", lat:10.3910, lng:-75.4794, p1:"🌎 Continente: America del Sur", p2:"🇨🇴 Pais: Colombia", p3:"🏛️ Ciudad amurallada."},
+  {n:"Bogota", lat:4.6056, lng:-74.0553, p1:"🌎 Continente: America del Sur", p2:"🇨🇴 Pais: Colombia", p3:"🏛️ Monserrate."},
+  {n:"Machu Picchu", lat:-13.1631, lng:-72.5450, p1:"🌎 Continente: America del Sur", p2:"🇵🇪 Pais: Peru", p3:"🏛️ Ciudadela inca."},
+  {n:"Cusco", lat:-13.5319, lng:-71.9675, p1:"🌎 Continente: America del Sur", p2:"🇵🇪 Pais: Peru", p3:"🏛️ Capital inca."},
+  {n:"Salar de Uyuni", lat:-20.1338, lng:-67.4891, p1:"🌎 Continente: America del Sur", p2:"🇧🇴 Pais: Bolivia", p3:"🏞️ Espejo mas grande del mundo."},
+  {n:"Isla de Pascua", lat:-27.1127, lng:-109.3497, p1:"🌎 Continente: America del Sur", p2:"🇨🇱 Pais: Chile", p3:"🏞️ Moais gigantes."},
+  {n:"Rio de Janeiro", lat:-22.9519, lng:-43.2105, p1:"🌎 Continente: America del Sur", p2:"🇧🇷 Pais: Brasil", p3:"🏛️ Cristo Redentor."},
+  {n:"Buenos Aires", lat:-34.6037, lng:-58.3816, p1:"🌎 Continente: America del Sur", p2:"🇦🇷 Pais: Argentina", p3:"🏛️ Obelisco. Tango."},
+  {n:"Cataratas del Iguazu", lat:-25.6953, lng:-54.4367, p1:"🌎 Continente: America del Sur", p2:"🇦🇷 Pais: Argentina", p3:"🏞️ Cataratas enormes."},
+  {n:"Montevideo", lat:-34.9011, lng:-56.1645, p1:"🌎 Continente: America del Sur", p2:"🇺🇾 Pais: Uruguay", p3:"🏛️ Rambla junto al rio."},
+  {n:"Galapagos", lat:-0.9538, lng:-90.9656, p1:"🌎 Continente: America del Sur", p2:"🇪🇨 Pais: Ecuador", p3:"🏞️ Islas de Darwin."}
+];
+
+var POEMAS = [
+"En el mapa del mundo te busque,\ny entre tantos rincones te encontre.\nNo fue el azar, fue el destino\nque unio tu corazon con el mio.\n\nCada tesoro es una excusa,\ncada pista una promesa.\nY al final de cada aventura\nsolo quiero tenerte cerca.",
+"Hay tesoros que se esconden\nen cofres y en ruinas,\ny hay tesoros como el tuyo\nque se esconden en caricias.\n\nHoy el mapa nos reunio,\nmanana el mundo entero.\nY en cada punto cardinal\nte sigo queriendo.",
+"Eres el norte de mi brujula,\nel sur de mis silencios,\nel este de mis mananas,\nel oeste de mis suenos.\n\nCada lugar que descubrimos\nse vuelve un pedacito de nosotros.\nCada pista que resolvemos\nes un te quiero en secreto.",
+"Bajo un cielo distinto\nte pienso igual.\nCon la misma ternura,\ncon el mismo anhelo.\n\nLos kilometros no importan\ncuando el amor es brujula.\nY cada vez que te encuentro\nel mundo deja de dar vueltas.",
+"Si pudiera regalarte un lugar\nte regalaria un amanecer,\nuna playa sin nombre,\nun abrazo sin final.\n\nPero como el mundo es tuyo\ny yo soy solo un viajero,\nte regalo este poema\ny mi corazon entero.",
+"Contigo los mapas se vuelven canciones,\nlas distancias se vuelven promesas,\ny los tesoros se vuelven excusas\npara decirte te quiero otra vez.\n\nCada dia es un nuevo destino,\ncada pista una nueva razon.\nY al final de todos los caminos\nsiempre estas tu, mi amor.",
+"Tu nombre es mi palabra favorita,\ntu sonrisa mi lugar en el mundo.\nCada vez que te encuentro\nel corazon me da un vuelco.",
+"En cada rincon del mapa\ndejo un pedacito de mi.\nPor si algun dia te pierdes\ny necesitas volver a mi.\n\nMi brujula siempre apunta\nhacia donde estas tu."
+];
+
+(function(){
+  var extra = "El mundo se detiene cuando te miro,\ny en tu sonrisa encuentro mi camino,\ncada dia a tu lado es un regalo,\nun nuevo verso en este amor divino.";
+  while(POEMAS.length < 365){ POEMAS.push(extra); }
+})();
+
+var CUPONES = [
+  {t:"Un abrazo de 5 minutos", d:"Sin soltar, sin excusas."},
+  {t:"Un masaje de 15 minutos", d:"Donde tu quieras."},
+  {t:"Una noche de peliculas", d:"Tu eliges las 3 peliculas."},
+  {t:"Una cena sorpresa", d:"Donde tu quieras."},
+  {t:"Un paseo al atardecer", d:"De la mano, sin celular."},
+  {t:"Una cancion dedicada", d:"La que tu elijas."},
+  {t:"Un cafe en tu lugar favorito", d:"Yo invito, tu eliges."},
+  {t:"Un picnic improvisado", d:"Yo preparo la canasta."},
+  {t:"Una carta escrita a mano", d:"Con mi letra fea y todo."},
+  {t:"Un dia sin redes sociales", d:"Solo tu y yo."},
+  {t:"Un baile en la sala", d:"Con la cancion que tu quieras."},
+  {t:"Un helado a medianoche", d:"Del sabor que quieras."},
+  {t:"Una tarde de libros", d:"En silencio, juntos."},
+  {t:"Un dia de fotos juntos", d:"Sesion casera."},
+  {t:"Una noche de fogata", d:"Con malvaviscos."},
+  {t:"Un masaje de pies", d:"Despues de un dia largo."},
+  {t:"Un ramo de flores sorpresa", d:"Sin motivo, solo porque si."},
+  {t:"Un dia de museos", d:"Tu eliges cuales."},
+  {t:"Una noche de estrellas", d:"En un lugar sin luz."},
+  {t:"Un desayuno juntos", d:"En tu cafeteria favorita."},
+  {t:"Una tarde de karaoke", d:"En casa, sin verguenza."},
+  {t:"Un dia de tacos", d:"Del lugar que mas te guste."},
+  {t:"Una tarde de te", d:"Con pastitas y todo."},
+  {t:"Un dia de pizza casera", d:"Con ingredientes que elijas."},
+  {t:"Un dia de chocolate", d:"En todas sus formas."},
+  {t:"Un dia de frutas", d:"Picnic saludable."},
+  {t:"Un dia de sopa", d:"Cuando estes malita."},
+  {t:"Un dia de mimitos", d:"Todo el dia, sin limites."},
+  {t:"Una noche de pelis romanticas", d:"Yo no me quejo."},
+  {t:"Un dia de terror", d:"Peliculas y sustos juntos."},
+  {t:"Un dia de comedia", d:"Reir hasta llorar."},
+  {t:"Un dia de documentales", d:"Con palomitas."},
+  {t:"Una tarde de ajedrez", d:"Sin hacer trampa."},
+  {t:"Un dia de domino", d:"El clasico."},
+  {t:"Un dia de cartas", d:"Naipes y apuestas de besos."},
+  {t:"Una tarde de pintura", d:"Lo que salga, vale."},
+  {t:"Un dia de escritura", d:"Cartas de amor."},
+  {t:"Un dia de musica", d:"Playlist compartida."},
+  {t:"Un dia de baile", d:"Clases improvisadas."},
+  {t:"Un dia de yoga", d:"Juntos, en casa."},
+  {t:"Un dia de meditacion", d:"Respirar y estar."},
+  {t:"Un dia de gratitud", d:"Decir 10 cosas que amamos."},
+  {t:"Un dia de recuerdos", d:"Ver fotos viejas."},
+  {t:"Un dia de futuro", d:"Sonar despiertos."},
+  {t:"Un dia de promesas", d:"Nuevas, bonitas."},
+  {t:"Un dia de perdon", d:"Sin reproches."},
+  {t:"Un dia de abrazos", d:"Cada hora, uno."},
+  {t:"Un dia de besos", d:"Sin contar."},
+  {t:"Un dia de piropos", d:"Solo bonitos."},
+  {t:"Un dia de sorpresas", d:"Pequenas, pero significativas."},
+  {t:"Un dia de cartas escondidas", d:"Por la casa."},
+  {t:"Un dia de dulces", d:"Escondidos para ti."},
+  {t:"Una noche de velas", d:"Cena romantica en casa."},
+  {t:"Un dia de cuentos", d:"Leer juntos."},
+  {t:"Un dia de dibujos", d:"Retratarnos mutuamente."},
+  {t:"Un dia de poesia", d:"Uno escribe, otro lee."},
+  {t:"Un dia de teatro en casa", d:"Obra improvisada."},
+  {t:"Un dia de titeres", d:"Con calcetines."},
+  {t:"Un dia de globos", d:"Fiesta sin motivo."},
+  {t:"Un dia de pastel", d:"Aunque no sea cumpleanos."},
+  {t:"Un dia de velitas", d:"Como si fuera especial."},
+  {t:"Un dia de pinata", d:"Si, aunque sea raro."},
+  {t:"Un dia de confeti", d:"Celebrarnos."},
+  {t:"Un dia de disfraces", d:"Sin ocasion."},
+  {t:"Un dia de fotos ridiculas", d:"Las mejores."},
+  {t:"Un dia de chistes malos", d:"Hasta que lloremos."},
+  {t:"Un dia de memes", d:"Compartir hasta reir."},
+  {t:"Un dia de TikTok juntos", d:"Baile viral."},
+  {t:"Un dia de selfies", d:"100, minimo."},
+  {t:"Un dia de abrazos largos", d:"Sin soltar por 1 minuto."},
+  {t:"Un dia de te amo", d:"100 veces, minimo."},
+  {t:"Un dia de por favor", d:"Y gracias, todo el dia."},
+  {t:"Un dia sin celulares", d:"Solo nosotros."},
+  {t:"Un dia de silencio", d:"Solo miradas y sonrisas."},
+  {t:"Un dia de desayuno juntos", d:"En la cocina, tu y yo."},
+  {t:"Un dia de cocinar juntos", d:"Receta nueva."},
+  {t:"Un dia de sushi", d:"Yo pago, tu eliges."},
+  {t:"Un dia de hamburguesas", d:"Del lugar que quieras."},
+  {t:"Un dia de mariscos", d:"Si te gustan."},
+  {t:"Un dia de parrilla", d:"Asado en casa."},
+  {t:"Un dia de sopa caliente", d:"En un dia frio."},
+  {t:"Un dia de panqueques", d:"Con nutella y fresas."},
+  {t:"Un dia de milkshake", d:"Del sabor que quieras."},
+  {t:"Un dia de churros", d:"Con chocolate."},
+  {t:"Un dia de donas", d:"Media docena, minimo."},
+  {t:"Un dia de galletas", d:"Horneadas en casa."},
+  {t:"Un dia de flan", d:"Casero, hecho por mi."},
+  {t:"Un dia de brownies", d:"Con helado encima."},
+  {t:"Un dia de cafe", d:"En un lugar nuevo."},
+  {t:"Un dia de te chai", d:"Con leche y canela."},
+  {t:"Un dia de smoothie", d:"De frutas tropicales."},
+  {t:"Un dia de jugo natural", d:"Recien hecho."},
+  {t:"Un dia de agua fresca", d:"De tu sabor favorito."},
+  {t:"Un dia de cerveza artesanal", d:"Probar una nueva."},
+  {t:"Un dia de vino", d:"Tinto o blanco, tu eliges."},
+  {t:"Un dia de mezcal", d:"Para los valientes."},
+  {t:"Un dia de ron", d:"Con limon y sal."},
+  {t:"Un dia de tequila", d:"Una sola, con cabeza."},
+  {t:"Un dia de mojito", d:"Sin alcohol si prefieres."},
+  {t:"Un dia de piña colada", d:"Y estar en la playa mentalmente."}
+];
+
+// PUZZLE: usar la foto de pareja
+var PUZZLE_IMAGENES = [
+  "https://i.imgur.com/NRfWZRG.jpg",
+  "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1494774157365-9e04c6720e47?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&h=600&fit=crop"
+];
+
+var ADIVINANZAS_SUGERIDAS = [
+  "¿Qué día nos conocimos?",
+  "¿Cuál fue nuestra primera cita?",
+  "¿Cuál es mi comida favorita?",
+  "¿Qué canción me recuerda a ti?",
+  "¿Cuál fue el primer regalo que me diste?",
+  "¿Qué es lo que más te gusta de mí?",
+  "¿Cuál es nuestro mejor recuerdo juntos?",
+  "¿Qué lugar te gustaría visitar conmigo?"
+];
+
+var LS = { tesoros:"ma_tesoros", cupones:"ma_cupones", puzzle:"ma_puzzle", selfies:"ma_selfies", adivinanzas:"ma_adivinanzas", pistasVistas:"ma_pistas_vistas" };
+var usuario = null, mapa = null, capas = null, marcadores = [], tesoroHoy = null;
+var lugarActivo = null;
+var selfieStream = null;
+var facingMode = 'user';
+var puzzles = {};
+var cuponesCanjeados = {};
+var ultimaNotifDireccion = '';
+var pergaminoAbiertoAuto = false;
+
+function get(k, d){ try{ var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
+function set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function cerrarModal(id){ document.getElementById(id).classList.remove('activo'); }
+function abrirModal(id){ document.getElementById(id).classList.add('activo'); }
+function toast(m){
+  var t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('visible');
+  clearTimeout(t._id); t._id = setTimeout(function(){ t.classList.remove('visible'); }, 2800);
+}
+function haversine(a,b){
+  var R=6371, dLat=(b[0]-a[0])*Math.PI/180, dLng=(b[1]-a[1])*Math.PI/180;
+  var la1=a[0]*Math.PI/180, la2=b[0]*Math.PI/180;
+  var h=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)*Math.sin(dLng/2);
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+function distanciaAlTesoro(){
+  if(!tesoroHoy || !mapa) return null;
+  var c = mapa.getCenter();
+  return haversine([c.lat,c.lng],[tesoroHoy.lat,tesoroHoy.lng]);
+}
+
+function calcularDireccion(){
+  if(!tesoroHoy || !mapa) return null;
+  var c = mapa.getCenter();
+  var lat1 = c.lat * Math.PI / 180;
+  var lat2 = tesoroHoy.lat * Math.PI / 180;
+  var dLng = (tesoroHoy.lng - c.lng) * Math.PI / 180;
+  var y = Math.sin(dLng) * Math.cos(lat2);
+  var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+  var rumbo = Math.atan2(y, x) * 180 / Math.PI;
+  rumbo = (rumbo + 360) % 360;
+  var dir = 'Norte';
+  if(rumbo >= 337.5 || rumbo < 22.5) dir = 'Norte';
+  else if(rumbo < 67.5) dir = 'Noreste';
+  else if(rumbo < 112.5) dir = 'Este';
+  else if(rumbo < 157.5) dir = 'Sureste';
+  else if(rumbo < 202.5) dir = 'Sur';
+  else if(rumbo < 247.5) dir = 'Suroeste';
+  else if(rumbo < 292.5) dir = 'Oeste';
+  else dir = 'Noroeste';
+  return { direccion: dir, rumbo: rumbo };
+}
+
+function actualizarIndicadorDistancia(){
+  var d = distanciaAlTesoro();
+  if(d === null) return;
+
+  var indicador = document.getElementById('indicadorDistancia');
+  var distTexto = document.getElementById('distanciaTexto');
+  var direccionTexto = document.getElementById('direccionTexto');
+  var consejoTexto = document.getElementById('consejoTexto');
+
+  var metros = d * 1000;
+  if(metros < 1000){
+    distTexto.textContent = metros.toFixed(0) + ' m';
+  } else if(metros < 10000){
+    distTexto.textContent = (metros/1000).toFixed(2) + ' km';
+  } else {
+    distTexto.textContent = (metros/1000).toFixed(0) + ' km';
+  }
+
+  var dir = calcularDireccion();
+  if(dir) direccionTexto.textContent = dir.direccion;
+
+  if(metros <= CONFIG.DIST_TESORO){
+    consejoTexto.textContent = '¡Estás encima! Toca el corazón 💖';
+  } else if(metros <= 1000){
+    consejoTexto.textContent = '¡Ya casi! Sigue moviéndote';
+  } else {
+    consejoTexto.textContent = 'Mueve el mapa hacia ' + (dir ? dir.direccion.toLowerCase() : 'el tesoro');
+  }
+
+  indicador.classList.remove('cerca','muycerca');
+  if(metros <= CONFIG.DIST_TESORO * 10) indicador.classList.add('muycerca');
+  else if(metros <= 5000) indicador.classList.add('cerca');
+
+  if(metros <= 5000 && dir){
+    var notif = document.getElementById('notifDireccion');
+    var notifFlecha = document.getElementById('notifFlecha');
+    var notifTexto = document.getElementById('notifTexto');
+
+    if(ultimaNotifDireccion !== dir.direccion){
+      ultimaNotifDireccion = dir.direccion;
+      var flechas = {'Norte':'↑','Noreste':'↗','Este':'→','Sureste':'↘','Sur':'↓','Suroeste':'↙','Oeste':'←','Noroeste':'↖'};
+      notifFlecha.textContent = flechas[dir.direccion] || '↑';
+      notifTexto.textContent = 'Ve hacia el ' + dir.direccion.toLowerCase();
+      notif.classList.add('visible');
+      setTimeout(function(){ notif.classList.remove('visible'); }, 2500);
+    }
+  }
+
+  verificarNotificacionesPistas(metros);
+}
+
+function verificarNotificacionesPistas(metros){
+  var hoy = CONFIG.HOY;
+  var vistas = get(LS.pistasVistas, {});
+
+  if(vistas.dia !== hoy){
+    vistas = { dia: hoy, p1: false, p2: false, p3: false };
+    set(LS.pistasVistas, vistas);
+  }
+
+  if(!vistas.p1 && metros <= CONFIG.DIST_PISTA_1){
+    vistas.p1 = true;
+    set(LS.pistasVistas, vistas);
+    mostrarNotifPista('🌎', '¡Pista desbloqueada!', 'Pista 1 (Continente) disponible 📜');
+  }
+
+  if(!vistas.p2 && metros <= CONFIG.DIST_PISTA_2){
+    vistas.p2 = true;
+    set(LS.pistasVistas, vistas);
+    mostrarNotifPista('🔓', '¡Nueva pista desbloqueada!', 'Pista 2 (Pais) disponible 📜');
+  }
+
+  if(!vistas.p3 && metros <= CONFIG.DIST_PISTA_3){
+    vistas.p3 = true;
+    set(LS.pistasVistas, vistas);
+    mostrarNotifPista('🎯', '¡Pista final desbloqueada!', 'Pista 3 (Ciudad) disponible 📜');
+  }
+}
+
+function mostrarNotifPista(icono, titulo, texto){
+  var notif = document.createElement('div');
+  notif.className = 'notif-pista';
+  notif.innerHTML = '<div class="icono">' + icono + '</div>' +
+    '<div class="titulo">' + titulo + '</div>' +
+    '<div class="texto">' + texto + '</div>';
+  document.body.appendChild(notif);
+
+  setTimeout(function(){ notif.classList.add('visible'); }, 100);
+  setTimeout(function(){
+    notif.classList.remove('visible');
+    setTimeout(function(){ if(notif.parentNode) notif.remove(); }, 500);
+  }, 4500);
+}
+
+function abrirSeccion(nombre){
+  document.getElementById('menuPrincipal').style.display = 'none';
+  document.querySelectorAll('.seccion').forEach(function(s){ s.classList.remove('activa'); });
+  var sec = document.getElementById('seccion-' + nombre);
+  if(sec) sec.classList.add('activa');
+
+  document.getElementById('burbujaDias').classList.add('visible');
+
+  if(nombre === 'mapa'){
+    setTimeout(function(){
+      if(!mapa) initMapa();
+      mapa.invalidateSize();
+      dibujarMarcadores();
+      actualizarIndicadorDistancia();
+
+      if(!pergaminoAbiertoAuto && tesoroHoy){
+        pergaminoAbiertoAuto = true;
+        setTimeout(function(){
+          mostrarPergamino(LUGARES[tesoroHoy.idx], tesoroHoy.idx);
+        }, 600);
+      }
+    }, 100);
+  } else if(nombre === 'cupones'){ renderCupones(); }
+  else if(nombre === 'galeria'){ renderGaleria(); }
+  else if(nombre === 'puzzle'){ renderPuzzle(); }
+  else if(nombre === 'selfie'){ renderSelfie(); }
+  else if(nombre === 'fechas'){ renderFechas(); }
+  else if(nombre === 'adivinanzas'){ renderAdivinanzas(); }
+}
+
+function cerrarSeccion(){
+  if(selfieStream){
+    selfieStream.getTracks().forEach(function(t){ t.stop(); });
+    selfieStream = null;
+  }
+  document.querySelectorAll('.seccion').forEach(function(s){ s.classList.remove('activa'); });
+  document.getElementById('menuPrincipal').style.display = 'flex';
+  document.getElementById('burbujaDias').classList.remove('visible');
+}
+
+function actualizarDias(){
+  var dias = Math.floor((Date.now() - CONFIG.INICIO.getTime())/86400000);
+  var el = document.getElementById('chipDias');
+  if(el) el.textContent = dias;
+
+  var numEl = document.getElementById('burbujaNumero');
+  if(numEl) numEl.textContent = dias;
+}
+
+function initMapa(){
+  if(mapa) return;
+  mapa = L.map('map',{zoomControl:true}).setView(CONFIG.CASA,6);
+  var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri'});
+  var cal = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'OSM'});
+  sat.addTo(mapa);
+  capas = {"Satelite":sat,"Calles":cal};
+  L.control.layers(capas,null,{position:'topright'}).addTo(mapa);
+  mapa.on('move', function(){ actualizarIndicadorDistancia(); });
+  mapa.on('moveend', function(){ dibujarMarcadores(); actualizarIndicadorDistancia(); });
+}
+
+function calcularTesoroHoy(){
+  var inicio = new Date("2025-01-01T00:00:00");
+  var dias = Math.floor((Date.now()-inicio.getTime())/86400000);
+  var idx = ((dias % LUGARES.length)+LUGARES.length)%LUGARES.length;
+  var l = LUGARES[idx];
+  return {n:l.n, lat:l.lat, lng:l.lng, p1:l.p1, p2:l.p2, p3:l.p3, idx:idx};
+}
+
+function dibujarMarcadores(){
+  if(!mapa) return;
+  for(var i=0;i<marcadores.length;i++) mapa.removeLayer(marcadores[i]);
+  marcadores = [];
+  var idxHoy = tesoroHoy ? tesoroHoy.idx : -1;
+  var d = distanciaAlTesoro();
+
+  if(idxHoy >= 0 && d !== null && d * 1000 <= CONFIG.DIST_TESORO){
+    var l = LUGARES[idxHoy];
+    var di = L.divIcon({
+      html:'<div style="font-size:50px;text-align:center;animation:latido 1s ease-in-out infinite;filter:drop-shadow(0 0 15px #ff5c8a);cursor:pointer;">💖</div>' +
+           '<style>@keyframes latido{0%,100%{transform:scale(1);}50%{transform:scale(1.35);}}</style>',
+      className:'', iconSize:[70,70], iconAnchor:[35,35]
+    });
+
+    var m = L.marker([l.lat,l.lng],{icon:di}).addTo(mapa);
+    m.on('click', function(){
+      encontrarTesoro(idxHoy);
+    });
+    marcadores.push(m);
+  }
+}
+
+function mostrarPergamino(lugar, idx){
+  lugarActivo = lugar;
+  var dist = distanciaAlTesoro();
+  var metros = dist !== null ? dist * 1000 : null;
+
+  document.getElementById('pergaminoTitulo').textContent = '📜 Pistas del Tesoro';
+  document.getElementById('pergaminoLugar').textContent = '📍 Sigue las pistas para encontrar el lugar';
+
+  var html = '';
+
+  html += '<div class="pista-pergamino">' +
+    '<span class="etiqueta">✧ Pista 1 - El Continente ✧</span>' +
+    lugar.p1 +
+  '</div>';
+
+  if(metros !== null && metros <= CONFIG.DIST_PISTA_2){
+    html += '<div class="pista-pergamino">' +
+      '<span class="etiqueta">✧ Pista 2 - El Pais ✧</span>' +
+      lugar.p2 +
+    '</div>';
+  } else {
+    html += '<div class="pista-pergamino bloqueada">' +
+      '<span class="etiqueta">✧ Pista 2 🔒 ✧</span>' +
+      'Se revela a menos de ' + CONFIG.DIST_PISTA_2.toLocaleString() + ' metros de distancia.' +
+    '</div>';
+  }
+
+  if(metros !== null && metros <= CONFIG.DIST_PISTA_3){
+    html += '<div class="pista-pergamino">' +
+      '<span class="etiqueta">✧ Pista 3 - La Ciudad ✧</span>' +
+      lugar.p3 +
+    '</div>';
+  } else {
+    html += '<div class="pista-pergamino bloqueada">' +
+      '<span class="etiqueta">✧ Pista 3 🔒 ✧</span>' +
+      'Se revela a menos de ' + CONFIG.DIST_PISTA_3.toLocaleString() + ' metros de distancia.' +
+    '</div>';
+  }
+
+  var dir = calcularDireccion();
+  if(metros !== null && metros > CONFIG.DIST_TESORO){
+    var consejo = '🧭 Mueve el mapa hacia el ' + (dir ? dir.direccion.toLowerCase() : 'tesoro');
+    html += '<div style="text-align:center;margin-top:14px;padding:10px;background:rgba(180,160,120,0.2);border-radius:10px;">' +
+      '<p style="font-size:.8rem;color:#7a5f30;">' + consejo + '</p>' +
+      '<p style="font-size:.7rem;color:#7a5f30;margin-top:4px;">El corazón aparece a ' + CONFIG.DIST_TESORO + ' metros</p>' +
+    '</div>';
+  } else if(metros !== null && metros <= CONFIG.DIST_TESORO){
+    html += '<div style="text-align:center;margin-top:14px;padding:10px;background:rgba(76,175,80,0.2);border-radius:10px;">' +
+      '<p style="font-size:.85rem;color:#2e7d32;font-weight:bold;">💖 ¡Estás encima! Busca el corazón en el mapa</p>' +
+    '</div>';
+  }
+
+  document.getElementById('pergaminoPistas').innerHTML = html;
+  abrirModal('modalPergamino');
+}
+
+function encontrarTesoro(idx){
+  if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+
+  var enc = get(LS.tesoros,{});
+  if(enc[idx]){
+    document.getElementById('poemaTexto').textContent = enc[idx].poema;
+    document.getElementById('codigoTexto').textContent = enc[idx].codigo;
+    document.getElementById('btnAvisar').onclick = avisarPorWhatsApp;
+    lugarActivo = { n: enc[idx].lugar };
+    abrirModal('modalTesoro');
+    return;
+  }
+
+  var poema = POEMAS[Math.floor(Math.random()*POEMAS.length)];
+  document.getElementById('poemaTexto').textContent = poema;
+  document.getElementById('codigoTexto').textContent = usuario.codigo;
+
+  enc[idx] = {
+    fecha: CONFIG.HOY,
+    poema: poema,
+    lugar: LUGARES[idx].n,
+    codigo: usuario.codigo
+  };
+  set(LS.tesoros, enc);
+  lugarActivo = LUGARES[idx];
+
+  document.getElementById('btnAvisar').onclick = avisarPorWhatsApp;
+  abrirModal('modalTesoro');
+  lanzarConfeti();
+  dibujarMarcadores();
+}
+
+function avisarPorWhatsApp(){
+  var otro = (usuario === CONFIG.ESTUARDO) ? CONFIG.ANA : CONFIG.ESTUARDO;
+  var mensajeBonito = 
+    '💖✨ ¡Mi amor! ✨💖\n\n' +
+    '¡Encontré el tesoro de hoy! 🎁\n\n' +
+    '📍 Lugar: *' + (lugarActivo ? lugarActivo.n : '-') + '*\n' +
+    '🔑 Código: *' + usuario.codigo + '*\n\n' +
+    'Te amo mucho, mi vida 💕\n' +
+    'Ven a buscarlo conmigo 🥰\n\n' +
+    '— ' + usuario.nombre + ' 💗';
+  var msg = encodeURIComponent(mensajeBonito);
+  window.open('https://wa.me/' + otro.whatsapp + '?text=' + msg, '_blank');
+}
+
+function renderCupones(){
+  cuponesCanjeados = get(LS.cupones,{});
+  var cont = document.getElementById('cuponesContainer');
+  var totalCanjeados = 0;
+  for(var k in cuponesCanjeados){ if(cuponesCanjeados[k]) totalCanjeados++; }
+
+  if(totalCanjeados >= 100){
+    if(confirm("🎉 ¡Completaste los 100 cupones! 🎉\n\n¿Quieres reiniciar?")){
+      set(LS.cupones, {});
+      cuponesCanjeados = {};
+      totalCanjeados = 0;
+      toast("✨ ¡Nuevo camino!");
+    }
+  }
+
+  var html = '<div style="text-align:center;margin-bottom:20px;">' +
+    '<h3 style="color:#ffd166;font-size:1.2rem;">🎟️ Camino de Cupones</h3>' +
+    '<p style="color:#ffb3c9;font-size:.85rem;margin-top:6px;">' + totalCanjeados + ' de 100 canjeados</p>' +
+    '<div style="margin:12px auto;max-width:340px;height:8px;background:#2a0f1e;border-radius:10px;overflow:hidden;border:1px solid rgba(255,209,102,.3);">' +
+      '<div style="height:100%;width:' + totalCanjeados + '%;background:linear-gradient(90deg,#ff5c8a,#ffd166);transition:.5s;"></div>' +
+    '</div>' +
+  '</div>';
+
+  html += '<div class="cupones-mapa"><div class="camino-cupones">';
+  for(var i=0;i<CUPONES.length;i++){
+    var c = CUPONES[i];
+    var usado = cuponesCanjeados[i];
+    html += '<div class="cupon-camino ' + (usado?'completado ':'') + '" data-num="' + (i+1) + '">' +
+      '<div class="titulo">🎁 ' + c.t + '</div>' +
+      '<div class="desc">' + c.d + '</div>' +
+      (usado ? '<div class="fecha">✅ Canjeado el ' + usado + '</div>' :
+        '<button class="btn-canjear-cupon" onclick="event.stopPropagation();canjearCupon(' + i + ')">Canjear</button>') +
+    '</div>';
+  }
+  html += '</div></div>';
+  cont.innerHTML = html;
+}
+
+function canjearCupon(i){
+  var us = get(LS.cupones,{});
+  if(us[i]){ toast("Ya canjeado"); return; }
+  var pass = prompt("Escribe tu palabra secreta para canjear:");
+  if(!pass) return;
+  var p = pass.trim().toLowerCase();
+  if(p !== 'mavie' && p !== 'carino' && p !== 'cariño'){ toast("Palabra incorrecta ❌"); return; }
+  us[i] = CONFIG.HOY;
+  set(LS.cupones,us);
+  var otro = (usuario === CONFIG.ESTUARDO) ? CONFIG.ANA : CONFIG.ESTUARDO;
+  var codigo = 'CUPON-' + usuario.nombre.charAt(0) + '-' + (i+1) + '-' + Math.floor(Math.random()*9000+1000);
+  var msg = encodeURIComponent('🎟️ ¡Canjee un cupon! 🎟️\n' + 'Cupon: ' + CUPONES[i].t + '\n' + 'Codigo: ' + codigo + '\n' + '- ' + usuario.nombre);
+  window.open('https://wa.me/' + otro.whatsapp + '?text=' + msg, '_blank');
+  toast("¡Cupon canjeado! 🎉");
+  renderCupones();
+}
+
+function renderGaleria(){
+  var enc = get(LS.tesoros,{});
+  var cont = document.getElementById('galeriaContainer');
+  var total = 0;
+  for(var k in enc){ if(enc[k] && enc[k].lugar) total++; }
+
+  if(total === 0){
+    cont.innerHTML = '<div class="galeria-vacia">💫 Aun no han encontrado ningun tesoro.</div>';
+    return;
+  }
+
+  var html = '<p style="text-align:center;color:#ffd166;font-weight:bold;margin-bottom:16px;">✨ ' + total + ' tesoro' + (total!==1?'s':'') + ' ✨</p>';
+  var arr = [];
+  for(var k in enc){ if(enc[k] && enc[k].lugar) arr.push({ idx: k, data: enc[k] }); }
+  arr.sort(function(a,b){ return (b.data.fecha || '').localeCompare(a.data.fecha || ''); });
+
+  arr.forEach(function(item){
+    var d = item.data;
+    html += '<div class="galeria-item">' +
+      '<div class="lugar">📍 ' + d.lugar + '</div>' +
+      '<div class="fecha">📅 ' + (d.fecha || 'Sin fecha') + ' · ' + (d.codigo || '') + '</div>' +
+      '<div class="poema">"' + (d.poema || 'Sin poema') + '"</div>' +
+    '</div>';
+  });
+  cont.innerHTML = html;
+}
+
+// ============ PUZZLE: piezas visibles desde el inicio ============
+function renderPuzzle(){
+  var hoy = CONFIG.HOY;
+  puzzles = get(LS.puzzle,{});
+  var cont = document.getElementById('puzzleContainer');
+  var fechaNum = Math.floor(new Date().getTime() / 86400000);
+  var idxImg = fechaNum % PUZZLE_IMAGENES.length;
+  var imgUrl = PUZZLE_IMAGENES[idxImg];
+
+  if(puzzles[hoy]){
+    cont.innerHTML = '<div style="text-align:center;padding:40px 20px;">' +
+      '<div style="font-size:4rem;">🎉</div>' +
+      '<h3 style="color:#ffd166;margin:14px 0;">¡Ya completaste el puzzle de hoy!</h3>' +
+      '<img src="' + imgUrl + '" style="width:min(280px,80vw);border-radius:14px;border:3px solid #ffd166;margin-top:14px;">' +
+      '<p style="color:#ffb3c9;font-size:.85rem;margin-top:14px;">Vuelve mañana para otro 🧩</p>' +
+    '</div>';
+    return;
+  }
+
+  cont.innerHTML = '<p style="text-align:center;color:#ffd166;font-weight:bold;font-size:1.1rem;">🧩 Arma la imagen de hoy</p>' +
+    '<p class="puzzle-info">Toca 2 piezas para intercambiarlas</p>' +
+    '<div class="puzzle-board" id="puzzleBoard"></div>' +
+    '<p class="puzzle-score" id="puzzleScore">Piezas correctas: 0 / 9</p>';
+
+  var board = document.getElementById('puzzleBoard');
+  var piezas = [];
+  for(var i=0;i<9;i++) piezas.push(i);
+
+  // Mezclar
+  do { piezas.sort(function(){ return Math.random() - 0.5; }); } while(piezas.every(function(p,i){ return p === i; }));
+
+  var seleccionada = null;
+
+  function pintar(){
+    board.innerHTML = '';
+    var correctas = 0;
     
-    <script>
-        const fechaInicio = new Date(2019, 11, 14);
-        const NUMERO_KEVIN = "50237418036";
-        const NUMERO_ELLA = "50248584358";
-        
-        // PALABRAS SECRETAS
-        const PALABRA_ELLA = "cariño";
-        const PALABRA_KEVIN = "mavie";
-        
-        // ========== POEMAS NEUTROS ==========
-        function obtenerPoema(dias) {
-            const poemas = [
-                `Día ${dias}: Si tuviera que escribir todo lo que siento, no me alcanzarían los árboles del mundo para hacer tanto papel. Porque este amor ha llenado cada rincón de mi ser. 
+    piezas.forEach(function(posOriginal, posActual){
+      var pieza = document.createElement('div');
+      pieza.className = 'puzzle-piece';
+      
+      // Cada pieza muestra SU PORCIÓN de la imagen según su posición ORIGINAL
+      // así se ve como un rompecabezas real desordenado
+      var fila = Math.floor(posOriginal / 3);
+      var col = posOriginal % 3;
+      pieza.style.backgroundImage = 'url(' + imgUrl + ')';
+      pieza.style.backgroundPosition = (-col * 50) + '% ' + (-fila * 50) + '%';
+      pieza.style.backgroundSize = '300% 300%';
+      
+      if(posOriginal === posActual){
+        pieza.classList.add('correcta');
+        correctas++;
+      }
+      if(posActual === seleccionada) pieza.classList.add('seleccionada');
 
-Recuerdo tu risa en los días grises, tus abrazos en las tormentas, tus besos en los atardeceres. Eres la protagonista de mi mejor historia, la musa que inspira mis días, la razón por la que mi corazón late más fuerte.
-
-Gracias por elegirme. Gracias por quedarte. Gracias por ser simplemente tú. 🌙💫`,
-                
-                `Día ${dias}: Cuando pienso en el amor, pienso en tus ojos al despertar. En tu voz ronca diciendo "buenos días". En tus manos buscando las mías bajo la sábana. 
-
-Eres la calma en medio del caos. La certeza en medio de las dudas. La luz cuando todo parece oscuro. 
-
-Contigo he aprendido que el amor no es un destino, es un viaje. Y no hay nadie con quien prefiera recorrerlo.
-
-Cada día a tu lado es un regalo que atesoro. Y aunque pasen los años, yo seguiré eligiéndote a ti. Siempre. 💖🌟`,
-                
-                `Día ${dias}: Eres la dueña de mis pensamientos, la protagonista de mis sueños, el primer rostro que viene a mi mente cuando despierto y el último antes de dormir. 
-
-Tu amor me ha enseñado a ser valiente, a creer en la magia, a entender que los finales felices existen si uno los construye con cariño.
-
-No sabes cuánto me alegra cada mensaje tuyo, cada llamada inesperada, cada gesto pequeño que demuestra que piensas en mí. 
-
-Porque en los pequeños detalles está lo grande. Y tú eres el detalle más grande y hermoso de mi vida. Gracias por ser mi persona favorita en todo el universo. 🌍❤️`,
-                
-                `Día ${dias}: A veces miro atrás y veo todo lo que hemos construido. Cada sonrisa, cada lágrima, cada abrazo ha sido un ladrillo en esta casa llamada amor.
-
-Eres mi roca, mi ancla, mi puerto seguro. No sé qué hice para merecerte, pero sé que cada día intento ser mejor persona porque tú mereces lo mejor.
-
-Gracias por ser mi hogar. Te amo más de lo que las palabras pueden expresar. 🏡💖`
-            ];
-            return poemas[dias % poemas.length];
+      pieza.onclick = function(){
+        if(seleccionada === null){
+          seleccionada = posActual;
+          pintar();
+        } else if(seleccionada === posActual){
+          seleccionada = null;
+          pintar();
+        } else {
+          var temp = piezas[seleccionada];
+          piezas[seleccionada] = piezas[posActual];
+          piezas[posActual] = temp;
+          seleccionada = null;
+          pintar();
+          verificar();
         }
-        
-        function obtenerBienvenida(dias) {
-            const bienvenidas = [
-                "✨ Gracias por venir hoy de nuevo ✨",
-                "💖 Te preparé este poema solo para ti 💖",
-                "🌹 Cada día una sorpresa. Hoy te toca esta joya 🌹",
-                "🌸 Bienvenida/o. Esto es para tu corazón 🌸",
-                "💫 Un día más a tu lado, un poema más en tu alma 💫"
-            ];
-            return bienvenidas[dias % bienvenidas.length];
-        }
-        
-        function calcularDiasJuntos() {
-            const hoy = new Date();
-            hoy.setHours(0,0,0,0);
-            const inicio = new Date(fechaInicio);
-            inicio.setHours(0,0,0,0);
-            return Math.floor((hoy - inicio) / (1000*60*60*24));
-        }
-        
-        function actualizarTodo() {
-            const dias = calcularDiasJuntos();
-            document.getElementById('contadorDias').innerHTML = `❤️ ${dias} días juntos ❤️`;
-            document.getElementById('fraseDiaria').innerHTML = obtenerPoema(dias);
-            document.getElementById('mensajeBienvenida').innerHTML = obtenerBienvenida(dias);
-        }
-        
-        let botonKevinActivo = false;
-        let botonEllaActivo = false;
-        
-        function verificarPalabra() {
-            const input = document.getElementById('palabraInput').value.trim().toLowerCase();
-            const msgDiv = document.getElementById('mensajeValidacion');
-            const btnElla = document.getElementById('whatsappBtnElla');
-            const btnKevin = document.getElementById('whatsappBtnKevin');
-            
-            btnElla.style.display = 'none';
-            btnKevin.style.display = 'none';
-            botonEllaActivo = false;
-            botonKevinActivo = false;
-            
-            if (input === PALABRA_ELLA) {
-                botonEllaActivo = true;
-                btnElla.style.display = 'flex';
-                msgDiv.innerHTML = "✅ ¡Palabra correcta! Puedes enviar mensaje a Mi Rey.";
-                msgDiv.className = "mensaje-exito";
-            } 
-            else if (input === PALABRA_KEVIN) {
-                botonKevinActivo = true;
-                btnKevin.style.display = 'flex';
-                msgDiv.innerHTML = "✅ ¡Palabra correcta! Puedes enviar mensaje a Mi Reina.";
-                msgDiv.className = "mensaje-exito";
-            }
-            else if (input !== "") {
-                msgDiv.innerHTML = "❌ Palabra incorrecta.";
-                msgDiv.className = "mensaje-error";
-            } else {
-                msgDiv.innerHTML = "";
-            }
-        }
-        
-        function enviarWhatsApp(numero) {
-            const mensaje = `¡Hola amor! 💖 Acabo de escanear el código y leí el poema de hoy. Te amo muchísimo. ✨`;
-            const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
-            window.open(url, '_blank');
-        }
-        
-        // Colores y corazones flotantes
-        let colorIndex = 0;
-        const colorPalettes = [
-            "linear-gradient(135deg, #667eea 0%, #764ba2 25%, #ff6b9d 50%, #f093fb 75%, #667eea 100%)",
-            "linear-gradient(135deg, #ff9a9e 0%, #fad0c4 25%, #fad0c4 50%, #ffd1ff 75%, #ff9a9e 100%)",
-            "linear-gradient(135deg, #a18cd1 0%, #fbc2eb 25%, #fbc2eb 50%, #ff9a9e 75%, #a18cd1 100%)",
-            "linear-gradient(135deg, #ffecd2 0%, #fcb69f 25%, #fcb69f 50%, #ff6b9d 75%, #ffecd2 100%)",
-            "linear-gradient(135deg, #b0f3f1 0%, #ffcfdf 25%, #ffcfdf 50%, #b0f3f1 75%, #b0f3f1 100%)"
-        ];
-        
-        function cambiarColorSuave() {
-            colorIndex = (colorIndex + 1) % colorPalettes.length;
-            document.body.style.background = colorPalettes[colorIndex];
-            document.body.style.backgroundSize = "400% 400%";
-        }
-        
-        function crearCorazon(x, y) {
-            const corazon = document.createElement('div');
-            corazon.className = 'corazon-flotante';
-            const emojis = ['❤️','💖','💗','💓','💘','💝','❤️‍🔥','💕'];
-            corazon.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
-            corazon.style.left = (x - 30) + 'px';
-            corazon.style.top = (y - 30) + 'px';
-            document.body.appendChild(corazon);
-            setTimeout(() => corazon.remove(), 3000);
-        }
-        
-        function tocarCorazones(e) {
-            const x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-            const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-            if (x && y) {
-                cambiarColorSuave();
-                for (let i = 0; i < 3; i++) {
-                    setTimeout(() => crearCorazon(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 40), i * 60);
-                }
-            }
-        }
-        
-        document.addEventListener('click', tocarCorazones);
-        document.addEventListener('touchstart', tocarCorazones);
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            actualizarTodo();
-            
-            // Limpiar el campo de palabra secreta al cargar (para que siempre esté vacío)
-            const inputPalabra = document.getElementById('palabraInput');
-            inputPalabra.value = "";
-            inputPalabra.addEventListener('input', verificarPalabra);
-            
-            document.getElementById('whatsappBtnElla').addEventListener('click', () => {
-                if (botonEllaActivo) enviarWhatsApp(NUMERO_KEVIN);
-            });
-            document.getElementById('whatsappBtnKevin').addEventListener('click', () => {
-                if (botonKevinActivo) enviarWhatsApp(NUMERO_ELLA);
-            });
-        });
-    </script>
+      };
+      board.appendChild(pieza);
+    });
+    
+    var scoreEl = document.getElementById('puzzleScore');
+    if(scoreEl) scoreEl.textContent = 'Piezas correctas: ' + correctas + ' / 9';
+  }
+
+  function verificar(){
+    var correcto = piezas.every(function(p,i){ return p === i; });
+    if(correcto){
+      puzzles[hoy] = true;
+      set(LS.puzzle, puzzles);
+      lanzarConfeti();
+      setTimeout(function(){
+        alert("🎉 ¡PUZZLE COMPLETADO! 🎉\n\n¡Ganaste un cupon especial!\n\nPuedes ir a la sección de Cupones y canjear el que quieras 💕");
+        renderPuzzle();
+      }, 500);
+    }
+  }
+  pintar();
+}
+
+function lanzarConfeti(){
+  var cont = document.createElement('div');
+  cont.className = 'confeti';
+  document.body.appendChild(cont);
+  var colores = ['#ff5c8a','#ffd166','#c9184a','#4CAF50','#2196F3','#9C27B0','#FF9800'];
+  for(var i=0;i<80;i++){
+    var piece = document.createElement('div');
+    piece.className = 'confeti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colores[Math.floor(Math.random() * colores.length)];
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+    if(Math.random() > 0.5) piece.style.borderRadius = '50%';
+    cont.appendChild(piece);
+  }
+  setTimeout(function(){ if(cont.parentNode) cont.remove(); }, 5000);
+}
+
+function renderSelfie(){
+  var selfies = get(LS.selfies,{});
+  var hoy = CONFIG.HOY;
+  var cont = document.getElementById('selfieContainer');
+  var hoyDate = new Date();
+  var year = hoyDate.getFullYear();
+  var month = hoyDate.getMonth();
+  var diasEnMes = new Date(year, month+1, 0).getDate();
+  var primerDia = new Date(year, month, 1).getDay();
+  var nombresMes = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  var html = '';
+
+  if(!selfies[hoy]){
+    html += '<div style="text-align:center;">' +
+      '<p style="color:#ffd166;font-weight:bold;margin-bottom:12px;">📸 Sonríe, mi amor</p>' +
+      '<video id="selfieVideo" class="selfie-video" autoplay playsinline></video>' +
+      '<div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;">' +
+        '<button class="btn" id="btnTomarSelfie" style="margin:0;">📸 Tomar selfie</button>' +
+        '<button class="btn" id="btnCambiarCam" style="margin:0;background:#555;">🔄 Cambiar cámara</button>' +
+      '</div>' +
+      '<canvas id="selfieCanvas" style="display:none;"></canvas>' +
+    '</div>';
+  } else {
+    html += '<div style="text-align:center;background:#2a0f1e;padding:14px;border-radius:14px;margin-bottom:14px;">' +
+      '<p style="color:#ffd166;font-weight:bold;margin-bottom:8px;">✅ Ya guardaste la selfie de hoy</p>' +
+      '<img src="' + selfies[hoy] + '" style="max-width:200px;border-radius:14px;border:3px solid #ff5c8a;">' +
+    '</div>';
+  }
+
+  html += '<h3 style="color:#ffd166;text-align:center;margin:20px 0 10px;">📅 ' + nombresMes[month] + ' ' + year + '</h3>';
+  html += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;font-size:.75rem;color:#ffb3c9;font-weight:bold;margin-bottom:6px;">' +
+    '<div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div>' +
+  '</div>';
+  html += '<div class="selfie-calendario">';
+  for(var i=0;i<primerDia;i++) html += '<div></div>';
+  for(var dia=1; dia<=diasEnMes; dia++){
+    var fechaStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(dia).padStart(2,'0');
+    var tieneFoto = selfies[fechaStr];
+    var esHoy = (fechaStr === hoy);
+    html += '<div class="selfie-dia ' + (tieneFoto?'tiene-foto ':'') + (esHoy?'hoy':'') + '" ' +
+      (tieneFoto ? 'style="background-image:url(' + selfies[fechaStr] + ')" onclick="verSelfie(\'' + fechaStr + '\')"' : '') +
+      '>' + (!tieneFoto ? dia : '') + '</div>';
+  }
+  html += '</div>';
+  cont.innerHTML = html;
+  if(!selfies[hoy]) setTimeout(iniciarCamara, 200);
+}
+
+function iniciarCamara(){
+  var video = document.getElementById('selfieVideo');
+  if(!video) return;
+  if(selfieStream) selfieStream.getTracks().forEach(function(t){ t.stop(); });
+
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode }, audio: false })
+    .then(function(stream){
+      selfieStream = stream;
+      video.srcObject = stream;
+      document.getElementById('btnTomarSelfie').onclick = function(){
+        var canvas = document.getElementById('selfieCanvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+        var dataURL = canvas.toDataURL('image/jpeg', 0.7);
+        var selfies = get(LS.selfies,{});
+        selfies[CONFIG.HOY] = dataURL;
+        set(LS.selfies, selfies);
+        toast("📸 Selfie guardada");
+        if(selfieStream){ selfieStream.getTracks().forEach(function(t){ t.stop(); }); selfieStream = null; }
+        renderSelfie();
+      };
+      document.getElementById('btnCambiarCam').onclick = function(){
+        facingMode = (facingMode === 'user') ? 'environment' : 'user';
+        iniciarCamara();
+      };
+    })
+    .catch(function(err){
+      console.error('Error de cámara:', err);
+      video.parentNode.innerHTML = '<p style="color:#ffb3c9;text-align:center;">⚠️ No se pudo acceder a la camara.<br><small>' + err.message + '</small><br><br>Verifica que le diste PERMISO a la cámara.</p>';
+    });
+}
+
+function verSelfie(fecha){
+  var selfies = get(LS.selfies,{});
+  if(!selfies[fecha]) return;
+  document.getElementById('selfieVerImg').src = selfies[fecha];
+  document.getElementById('selfieVerFecha').textContent = '📅 ' + fecha;
+  abrirModal('modalSelfieVer');
+}
+
+function renderFechas(){
+  var cont = document.getElementById('fechasContainer');
+  var hoy = new Date();
+  var hoyDia = hoy.getDate();
+  var hoyMes = hoy.getMonth() + 1;
+  var hoyAño = hoy.getFullYear();
+
+  var html = '<p style="text-align:center;color:#ffd166;font-weight:bold;font-size:1.1rem;margin-bottom:8px;">📅 Nuestras Fechas Especiales</p>';
+  html += '<p style="text-align:center;color:#ffb3c9;font-size:.8rem;margin-bottom:20px;">Las fechas más importantes de nuestro amor</p>';
+
+  var esEstuardo = (usuario === CONFIG.ESTUARDO);
+  var cumpleDeElla = CONFIG.CUMPLE_ANA;
+  var cumpleDeEl = CONFIG.CUMPLE_ESTUARDO;
+  var cumpleOtro = esEstuardo ? cumpleDeElla : cumpleDeEl;
+  var textoCumple = esEstuardo ? '🎂 Cumpleaños de mi amor (Ana)' : '🎂 Cumpleaños de mi amor (Estuardo)';
+
+  var diasCumple = diasHastaFecha(cumpleOtro.dia, cumpleOtro.mes);
+  var esCumpleHoy = (hoyDia === cumpleOtro.dia && hoyMes === cumpleOtro.mes);
+
+  html += '<div class="fecha-card ' + (esCumpleHoy ? 'hoy' : '') + '">';
+  if(esCumpleHoy) html += '<span class="confeti-fecha">🎉</span>';
+  html += '<span class="icono-grande">🎂</span>';
+  html += '<h3>' + textoCumple + '</h3>';
+  html += '<div class="fecha-texto">' + cumpleOtro.dia + ' de ' + nombreMes(cumpleOtro.mes) + '</div>';
+  if(esCumpleHoy){
+    html += '<div class="dias-restantes">🎉 ¡HOY ES SU CUMPLEAÑOS! 🎉</div>';
+  } else {
+    html += '<div class="dias-restantes">Faltan ' + diasCumple + ' días 💕</div>';
+  }
+  html += '<div class="detalle">El día que nació mi persona favorita 💗</div>';
+  html += '</div>';
+
+  var diasAnivPrincipal = diasHastaFecha(CONFIG.ANIVERSARIO.dia, CONFIG.ANIVERSARIO.mes);
+  var esAnivPrincipalHoy = (hoyDia === CONFIG.ANIVERSARIO.dia && hoyMes === CONFIG.ANIVERSARIO.mes);
+  var añosJuntos = hoyAño - CONFIG.ANIVERSARIO.año;
+
+  html += '<div class="fecha-card ' + (esAnivPrincipalHoy ? 'hoy' : '') + '">';
+  if(esAnivPrincipalHoy) html += '<span class="confeti-fecha">💕</span>';
+  html += '<span class="icono-grande">💍</span>';
+  html += '<h3>💕 Nuestro Aniversario</h3>';
+  html += '<div class="fecha-texto">14 de diciembre de ' + CONFIG.ANIVERSARIO.año + '</div>';
+  if(esAnivPrincipalHoy){
+    html += '<div class="dias-restantes">🎉 ¡HOY ES NUESTRO ANIVERSARIO! 🎉</div>';
+  } else {
+    html += '<div class="dias-restantes">Faltan ' + diasAnivPrincipal + ' días 💕</div>';
+  }
+  html += '<div class="detalle">' + (añosJuntos > 0 ? '¡Ya llevan ' + añosJuntos + ' años juntos! 🥰' : 'Comenzó nuestra historia 💗') + '</div>';
+  html += '</div>';
+
+  var diasProximo14 = diasHastaFecha(14, 0);
+  var es14Hoy = (hoyDia === 14);
+
+  html += '<div class="fecha-card ' + (es14Hoy ? 'hoy' : '') + '">';
+  if(es14Hoy) html += '<span class="confeti-fecha">💖</span>';
+  html += '<span class="icono-grande">🗓️</span>';
+  html += '<h3>💖 Aniversario Mensual</h3>';
+  html += '<div class="fecha-texto">Cada día 14 del mes</div>';
+  if(es14Hoy){
+    html += '<div class="dias-restantes">🎉 ¡Hoy es nuestro día 14! 🎉</div>';
+    html += '<div class="detalle">¡Feliz aniversario mensual, mi amor! 💕</div>';
+  } else {
+    html += '<div class="dias-restantes">Faltan ' + diasProximo14 + ' días</div>';
+    html += '<div class="detalle">Cada mes celebramos un mes más juntos 💗</div>';
+  }
+  html += '</div>';
+
+  html += renderCalendarioMes(hoyAño, hoyMes);
+
+  html += '<div class="calendario-mensual">';
+  html += '<h3>🎨 Leyenda</h3>';
+  html += '<div class="leyenda-fechas">';
+  html += '<div class="leyenda-fechas-item"><div class="leyenda-fechas-color" style="background:linear-gradient(135deg,#ff5c8a,#c9184a);"></div> Hoy</div>';
+  html += '<div class="leyenda-fechas-item"><div class="leyenda-fechas-color" style="background:linear-gradient(135deg,#7a1140,#c9184a);"></div> Día 14 (Aniv. mensual)</div>';
+  html += '<div class="leyenda-fechas-item"><div class="leyenda-fechas-color" style="background:linear-gradient(135deg,#1976D2,#0D47A1);"></div> Cumple Estuardo</div>';
+  html += '<div class="leyenda-fechas-item"><div class="leyenda-fechas-color" style="background:linear-gradient(135deg,#9C27B0,#6A1B9A);"></div> Cumple Ana</div>';
+  html += '</div>';
+  html += '</div>';
+
+  cont.innerHTML = html;
+}
+
+function nombreMes(m){
+  var meses = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  return meses[m] || '';
+}
+
+function diasHastaFecha(dia, mes){
+  var hoy = new Date();
+  hoy.setHours(0,0,0,0);
+  var esteAño = new Date(hoy.getFullYear(), mes - 1, dia);
+  esteAño.setHours(0,0,0,0);
+  
+  if(esteAño.getTime() < hoy.getTime()){
+    esteAño = new Date(hoy.getFullYear() + 1, mes - 1, dia);
+  }
+  
+  var diff = esteAño.getTime() - hoy.getTime();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+function renderCalendarioMes(año, mes){
+  var diasEnMes = new Date(año, mes, 0).getDate();
+  var primerDia = new Date(año, mes - 1, 1).getDay();
+  var hoy = new Date();
+  var hoyDia = hoy.getDate();
+  var hoyMes = hoy.getMonth() + 1;
+  var hoyAño = hoy.getFullYear();
+
+  var html = '<div class="calendario-mensual">';
+  html += '<h3>📅 ' + nombreMes(mes) + ' ' + año + '</h3>';
+  html += '<div class="calendario-grid">';
+  
+  var dias = ['D','L','M','M','J','V','S'];
+  dias.forEach(function(d){
+    html += '<div class="calendario-dia-header">' + d + '</div>';
+  });
+  
+  for(var i=0; i<primerDia; i++){
+    html += '<div></div>';
+  }
+  
+  for(var dia=1; dia<=diasEnMes; dia++){
+    var clases = 'calendario-dia';
+    var emoji = '';
+    
+    if(dia === hoyDia && mes === hoyMes && año === hoyAño){
+      clases += ' es-hoy';
+    }
+    
+    if(dia === 14){
+      clases += ' es-aniversario';
+      emoji = '💕';
+    }
+    
+    if(dia === CONFIG.CUMPLE_ESTUARDO.dia && mes === CONFIG.CUMPLE_ESTUARDO.mes){
+      clases += ' es-cumple-el';
+      emoji = '🎂';
+    }
+    
+    if(dia === CONFIG.CUMPLE_ANA.dia && mes === CONFIG.CUMPLE_ANA.mes){
+      clases += ' es-cumple-ella';
+      emoji = '🎉';
+    }
+    
+    if(dia === CONFIG.ANIVERSARIO.dia && mes === CONFIG.ANIVERSARIO.mes){
+      clases += ' es-aniversario';
+      emoji = '💍';
+    }
+    
+    html += '<div class="' + clases + '">';
+    html += '<span>' + dia + '</span>';
+    if(emoji) html += '<span class="emoji-dia">' + emoji + '</span>';
+    html += '</div>';
+  }
+  
+  html += '</div>';
+  html += '</div>';
+  
+  return html;
+}
+
+function renderAdivinanzas(){
+  var ads = get(LS.adivinanzas,[]);
+  var cont = document.getElementById('adivinanzasContainer');
+  var html = '<div style="background:#2a0f1e;padding:16px;border-radius:14px;margin-bottom:16px;">' +
+    '<h3 style="color:#ffd166;margin-bottom:10px;">✍️ Nueva adivinanza</h3>' +
+    '<div class="form-adiv">' +
+      '<input type="text" id="advPregunta" placeholder="Tu pregunta" maxlength="200">' +
+      '<textarea id="advRespuesta" placeholder="Tu respuesta..." maxlength="500"></textarea>' +
+      '<button class="btn-mini" id="btnAddAdv">➕ Agregar</button>' +
+    '</div>' +
+  '</div>';
+
+  html += '<p style="color:#ffb3c9;font-size:.8rem;margin-bottom:8px;">💡 Ideas:</p>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">';
+  ADIVINANZAS_SUGERIDAS.forEach(function(sug, i){
+    html += '<button class="btn-mini" onclick="usarSugerencia(' + i + ')" style="font-size:.7rem;padding:6px 12px;">' + sug + '</button>';
+  });
+  html += '</div>';
+
+  html += '<h3 style="color:#ffd166;margin:20px 0 10px;">💭 Adivinanzas (' + ads.length + ')</h3>';
+
+  if(ads.length === 0){
+    html += '<div class="galeria-vacia">Aun no hay adivinanzas.</div>';
+  } else {
+    ads.slice().reverse().forEach(function(adv, iRev){
+      var i = ads.length - 1 - iRev;
+      var esMia = (adv.autor === usuario.nombre);
+      html += '<div class="adivinanza">' +
+        '<div class="autor">' + (esMia ? '👤 Tú' : '👤 ' + adv.autor) + ' · ' + adv.fecha + '</div>' +
+        '<div class="pregunta">❓ ' + adv.pregunta + '</div>';
+      if(adv.respondida){
+        html += '<div class="respuesta">💬 ' + adv.respuesta + '</div>';
+      } else if(esMia){
+        html += '<div class="sin-respuesta">⏳ Esperando respuesta...</div>';
+      } else {
+        html += '<div style="margin-top:8px;">' +
+          '<input type="text" id="resp_' + i + '" placeholder="Tu respuesta...">' +
+          '<button class="btn-mini" style="margin-top:8px;" onclick="responderAdv(' + i + ')">Responder</button>' +
+        '</div>';
+      }
+      html += '</div>';
+    });
+  }
+  cont.innerHTML = html;
+  document.getElementById('btnAddAdv').onclick = agregarAdivinanza;
+}
+
+function usarSugerencia(i){
+  document.getElementById('advPregunta').value = ADIVINANZAS_SUGERIDAS[i];
+  document.getElementById('advRespuesta').focus();
+}
+
+function agregarAdivinanza(){
+  var preg = document.getElementById('advPregunta').value.trim();
+  var resp = document.getElementById('advRespuesta').value.trim();
+  if(!preg){ toast("Escribe una pregunta"); return; }
+  if(!resp){ toast("Escribe tu respuesta"); return; }
+  var ads = get(LS.adivinanzas,[]);
+  ads.push({ pregunta: preg, respuesta: resp, autor: usuario.nombre, fecha: CONFIG.HOY, respondida: false, id: Date.now() });
+  set(LS.adivinanzas, ads);
+  var otro = (usuario === CONFIG.ESTUARDO) ? CONFIG.ANA : CONFIG.ESTUARDO;
+  var msg = encodeURIComponent('💭 ¡Te lance una adivinanza! 💭\n' + 'Pregunta: ' + preg + '\n' + '- ' + usuario.nombre);
+  window.open('https://wa.me/' + otro.whatsapp + '?text=' + msg, '_blank');
+  toast("✨ Adivinanza creada");
+  renderAdivinanzas();
+}
+
+function responderAdv(i){
+  var input = document.getElementById('resp_' + i);
+  if(!input || !input.value.trim()){ toast("Escribe tu respuesta"); return; }
+  var ads = get(LS.adivinanzas,[]);
+  if(!ads[i]) return;
+  ads[i].respuesta = input.value.trim();
+  ads[i].respondida = true;
+  ads[i].fechaRespuesta = CONFIG.HOY;
+  set(LS.adivinanzas, ads);
+  var otro = (usuario === CONFIG.ESTUARDO) ? CONFIG.ANA : CONFIG.ESTUARDO;
+  var msg = encodeURIComponent('💭 ¡Respondi tu adivinanza! 💭\n' + 'Pregunta: ' + ads[i].pregunta + '\n' + 'Mi respuesta: ' + input.value.trim() + '\n' + '- ' + usuario.nombre);
+  window.open('https://wa.me/' + otro.whatsapp + '?text=' + msg, '_blank');
+  toast("✅ Respuesta enviada");
+  renderAdivinanzas();
+}
+
+function iniciarSesion(pass){
+  var p = pass.trim().toLowerCase();
+  if(p === 'mavie') usuario = CONFIG.ESTUARDO;
+  else if(p === 'carino' || p === 'cariño') usuario = CONFIG.ANA;
+  else { toast("Palabra incorrecta ❌"); return false; }
+  return true;
+}
+
+function iniciarApp(){
+  tesoroHoy = calcularTesoroHoy();
+  ultimaNotifDireccion = '';
+  pergaminoAbiertoAuto = false;
+  actualizarDias();
+  setInterval(actualizarDias, 60000);
+  document.getElementById('menuPrincipal').style.display = 'flex';
+  document.getElementById('burbujaDias').classList.remove('visible');
+  document.getElementById('btnPergamino').onclick = function(){
+    if(!tesoroHoy){ toast("No hay tesoro activo"); return; }
+    mostrarPergamino(LUGARES[tesoroHoy.idx], tesoroHoy.idx);
+  };
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var modales = document.querySelectorAll('.modal');
+  for(var i=0;i<modales.length;i++){
+    (function(m){
+      m.addEventListener('click', function(e){
+        if(e.target === m){ cerrarModal(m.id); }
+      });
+    })(modales[i]);
+  }
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      var abiertos = document.querySelectorAll('.modal.activo');
+      for(var j=0;j<abiertos.length;j++) cerrarModal(abiertos[j].id);
+    }
+  });
+});
+
+document.getElementById('btnEmpezar').onclick = function(){
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('login').style.display = 'flex';
+};
+
+document.getElementById('btnEntrar').onclick = function(){
+  var p = document.getElementById('palabra').value;
+  if(iniciarSesion(p)){
+    document.getElementById('login').style.display = 'none';
+    iniciarApp();
+  }
+};
+
+document.getElementById('palabra').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') document.getElementById('btnEntrar').click();
+});
+</script>
 </body>
 </html>
