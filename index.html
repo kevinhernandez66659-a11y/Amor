@@ -588,8 +588,8 @@ var CONFIG = {
   CUMPLE_ESTUARDO: { dia: 10, mes: 2, nombre: "Estuardo" },
   CUMPLE_ANA: { dia: 5, mes: 8, nombre: "Ana" },
   ANIVERSARIO: { dia: 14, mes: 12, año: 2019, nombre: "Nuestro Aniversario" },
-  // 🔥 QR DE ACCESO: el código que debe contener el QR escaneado
-  CODIGO_QR_ACCESO: "amor-14-12"
+  // 🔥 CLAVE DE ACCESO: debe coincidir con lo que va después de ?acceso= en la URL
+  CODIGO_QR_ACCESO: "siestuvierasaqui"
 };
 
 /* ========== LUGARES ========== */
@@ -945,7 +945,7 @@ function validarQR(textoQR){
 
   var codigoEsperado = CONFIG.CODIGO_QR_ACCESO;
 
-  // Aceptar varias formas del QR: que contenga la palabra "amor-14-12"
+  // Aceptar varias formas del QR: que contenga la palabra clave
   if (textoQR.indexOf(codigoEsperado) !== -1) {
     document.getElementById('estadoQR').textContent = '✅ ¡QR válido! Entrando...';
     document.getElementById('estadoQR').className = 'ok';
@@ -1848,8 +1848,21 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   });
 
-  // 🔥 AL ABRIR LA PÁGINA: SIEMPRE pedir escanear QR
-  iniciarEscaneoQR();
+  // ============================================================
+  // 🔥 LÓGICA DE ACCESO CON PARÁMETRO ?acceso=siestuvierasaqui
+  // ============================================================
+  var params = new URLSearchParams(window.location.search);
+  var acceso = params.get('acceso');
+
+  if(acceso === CONFIG.CODIGO_QR_ACCESO){
+    // ✅ Vino del QR correcto → directo al login
+    console.log("✅ Acceso por QR válido. Mostrando login.");
+    mostrarLogin();
+  } else {
+    // ❌ Entró solo con el link (sin QR) → pedir escaneo
+    console.log("❌ Sin QR válido. Pidiendo escanear.");
+    iniciarEscaneoQR();
+  }
 });
 
 document.getElementById('btnActivarCamara').onclick = function(){
@@ -1877,4 +1890,4 @@ document.getElementById('palabra').addEventListener('keydown', function(e){
 });
 </script>
 </body>
-</html> 
+</html>
