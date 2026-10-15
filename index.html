@@ -2565,6 +2565,7 @@ var qrScanner = null;
 var qrEscaneadoExito = false;
 var firebaseReady = false;
 var tesorosEncontrados = {};
+var todosLosTesoros = {};
 
 /* ═══════════════════════════════════════════════════════════
    🛠️ UTILIDADES - Funciones auxiliares
@@ -2925,8 +2926,8 @@ function dibujarMarcadores(){
    🎯 CONTADOR - Actualiza slots + historial
    ═══════════════════════════════════════════════════════════ */
 function actualizarContadorTesoros(){
+  // MI contador personal (arriba del mapa)
   var encontrados = 0;
-  var est = 0, ana = 0;
   for(var s = 0; s < 3; s++){
     var slot = document.getElementById('slot' + (s+1));
     if(!slot) continue;
@@ -2935,15 +2936,19 @@ function actualizarContadorTesoros(){
       slot.className = 'tesoro-slot completado';
       slot.textContent = '💖';
       encontrados++;
-      if(tesorosEncontrados[s].autor === 'Estuardo') est++;
-      if(tesorosEncontrados[s].autor === 'Ana') ana++;
     } else {
       slot.textContent = (s+1);
     }
   }
   var txt = document.getElementById('contadorTxt');
   if(txt) txt.textContent = encontrados + '/3';
-  // Actualizar historial
+  
+  // Historial "Estuardo X/3 · Ana Y/3" (de AMBOS, usando todosLosTesoros)
+  var est = 0, ana = 0;
+  for(var k in todosLosTesoros){
+    if(todosLosTesoros[k].autor === 'Estuardo') est++;
+    if(todosLosTesoros[k].autor === 'Ana') ana++;
+  }
   var hEst = document.getElementById('histEstuardo');
   var hAna = document.getElementById('histAna');
   if(hEst) hEst.textContent = est + '/3';
@@ -3013,7 +3018,8 @@ function encontrarTesoro(slot){
 
 function guardarTesoroEnFirebase(slot, tesoro, poema, codigo){
   if(!window.FB || !window.FB.setDoc) return;
-  var key = CONFIG.HOY + '-slot' + slot;
+  // ✅ AHORA CADA USUARIO TIENE SU PROPIO DOCUMENTO
+  var key = CONFIG.HOY + '-slot' + slot + '-' + usuario.nombre;
   var docRef = window.FB.doc(window.FB.db, 'tesoros', key);
   window.FB.setDoc(docRef, {
     dia: CONFIG.HOY,
@@ -3025,7 +3031,7 @@ function guardarTesoroEnFirebase(slot, tesoro, poema, codigo){
     autorCodigo: usuario.codigo,
     encontrado: true
   }).then(function(){
-    console.log("✅ Tesoro guardado en Firebase");
+    console.log("✅ Tesoro guardado en Firebase para " + usuario.nombre);
   }).catch(function(err){
     console.error("Error guardando tesoro:", err);
   });
@@ -3034,21 +3040,34 @@ function guardarTesoroEnFirebase(slot, tesoro, poema, codigo){
 /* ═══════════════════════════════════════════════════════════
    🔥 ESCUCHAR TESOROS EN TIEMPO REAL
    ═══════════════════════════════════════════════════════════ */
+
+
 function escucharTesorosFirebase(){
   if(!window.FB){ setTimeout(escucharTesorosFirebase, 500); return; }
   if(firebaseReady) return;
   firebaseReady = true;
   var col = window.FB.collection(window.FB.db, 'tesoros');
   window.FB.onSnapshot(col, function(snap){
-    tesorosEncontrados = {};
+    tesorosEncontrados = {};   // MIS tesoros (los del usuario actual)
+    todosLosTesoros = {};       // TODOS los tesoros (de ambos usuarios)
     snap.forEach(function(d){
       var data = d.data();
       if(data.dia === CONFIG.HOY){
-        tesorosEncontrados[data.slot] = {
+        // Guardamos en "todos" siempre
+        todosLosTesoros[data.slot + '-' + data.autor] = {
           autor: data.autor,
           lugar: data.lugar,
-          codigo: data.codigo
+          codigo: data.codigo,
+          slot: data.slot
         };
+        // Si es MÍO, lo guardo en "mis tesoros"
+        if(usuario && data.autor === usuario.nombre){
+          tesorosEncontrados[data.slot] = {
+            autor: data.autor,
+            lugar: data.lugar,
+            codigo: data.codigo
+          };
+        }
       }
     });
     actualizarContadorTesoros();
@@ -3061,11 +3080,11 @@ function escucharTesorosFirebase(){
    ═══════════════════════════════════════════════════════════ */
 function avisarPorWhatsApp(){
   var otro = (usuario === CONFIG.ESTUARDO) ? CONFIG.ANA : CONFIG.ESTUARDO;
-  var totalEncontrados = Object.keys(tesorosEncontrados).filter(function(k){ return tesorosEncontrados[k]; }).length;
-  var puedeEnviar = totalEncontrados >= 3;
-  if(!puedeEnviar){
-    var faltan = 3 - totalEncontrados;
-    toast('⚠️ Faltan ' + faltan + ' tesoro' + (faltan > 1 ? 's' : '') + ' para enviar el mensaje 💖');
+  // ✅ Solo cuenta MIS tesoros (no los del otro)
+  var miosEncontrados = Object.keys(tesorosEncontrados).filter(function(k){ return tesorosEncontrados[k]; }).length;
+  if(miosEncontrados < 3){
+    var faltan = 3 - miosEncontrados;
+    toast('⚠️ Faltan ' + faltan + ' tesoro' + (faltan > 1 ? 's' : '') + ' TUYOS para enviar el mensaje 💖');
     if(navigator.vibrate) navigator.vibrate([300,100,300]);
     return;
   }
@@ -3073,7 +3092,7 @@ function avisarPorWhatsApp(){
   for(var s = 0; s < 3; s++){
     if(tesorosEncontrados[s]) lugares.push('• ' + tesorosEncontrados[s].lugar);
   }
-  var mensajeBonito = '💖✨ ¡Mi amor! ✨💖\n\n¡Encontré los 3 tesoros del día! 🎁🎁🎁\n\n📍 Lugares:\n' + lugares.join('\n') + '\n\n🔑 Mi código: *' + usuario.codigo + '*\n\nTe amo mucho, mi vida 💕\n¡Ya completé la misión de hoy! 🥰\n\n— ' + usuario.nombre + ' 💗';
+  var mensajeBonito = '💖✨ ¡Mi amor! ✨💖\n\n¡Encontré MIS 3 tesoros del día! 🎁🎁🎁\n\n📍 Lugares:\n' + lugares.join('\n') + '\n\n🔑 Mi código: *' + usuario.codigo + '*\n\nTe amo mucho, mi vida 💕\n¡Ya completé la misión de hoy! 🥰\n\n— ' + usuario.nombre + ' 💗';
   var msg = encodeURIComponent(mensajeBonito);
   window.open('https://wa.me/' + otro.whatsapp + '?text=' + msg, '_blank');
   lanzarConfeti();
@@ -3964,4 +3983,4 @@ document.getElementById('palabra').addEventListener('keydown', function(e){
 });
 </script>
 </body>
-</html>
+</html> 
