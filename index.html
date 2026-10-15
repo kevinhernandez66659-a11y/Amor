@@ -9,7 +9,7 @@
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp }
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, getDocs, where, limit, setDoc, getDoc }
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -22,7 +22,7 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-window.FB = { db, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp };
+window.FB = { db, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, getDocs, where, limit, setDoc, getDoc };
 console.log("✅ Firebase conectado");
 window.dispatchEvent(new Event('firebase-ready'));
 </script>
@@ -93,7 +93,7 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 .chip{pointer-events:auto;background:rgba(26,10,20,.85);border:1px solid rgba(255,209,102,.5);border-radius:40px;padding:8px 14px;font-size:.8rem;color:#ffe3ee;box-shadow:0 4px 12px rgba(0,0,0,.3);}
 .chip strong{color:#ffd166;}
 .btn-salir-mapa{position:absolute;top:12px;left:12px;z-index:25;background:linear-gradient(90deg,#ff5c8a,#c9184a);border:none;color:#fff;padding:10px 18px;border-radius:30px;cursor:pointer;font-weight:bold;font-size:.85rem;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(255,92,138,.4);}
-#indicadorDistancia{position:absolute;top:70px;right:12px;z-index:20;background:rgba(26,10,20,.92);border:2px solid #ffd166;border-radius:16px;padding:12px 16px;min-width:180px;box-shadow:0 6px 20px rgba(0,0,0,.5);text-align:center;backdrop-filter:blur(8px);transition:.3s;}
+#indicadorDistancia{position:absolute;top:120px;right:12px;z-index:20;background:rgba(26,10,20,.92);border:2px solid #ffd166;border-radius:16px;padding:12px 16px;min-width:180px;box-shadow:0 6px 20px rgba(0,0,0,.5);text-align:center;backdrop-filter:blur(8px);transition:.3s;}
 #indicadorDistancia.cerca{border-color:#4CAF50;background:rgba(26,60,26,.92);}
 #indicadorDistancia.muycerca{border-color:#ff5c8a;background:rgba(74,15,46,.95);animation:pulsoIndicador 1.5s ease-in-out infinite;}
 @keyframes pulsoIndicador{0%,100%{box-shadow:0 6px 20px rgba(255,92,138,.4);}50%{box-shadow:0 6px 30px rgba(255,92,138,.9);}}
@@ -102,7 +102,7 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 #indicadorDistancia .brujula{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px;background:rgba(0,0,0,.3);border-radius:10px;margin-bottom:6px;}
 #indicadorDistancia .brujula .direccion{font-size:1rem;font-weight:bold;color:#ffe3ee;}
 #indicadorDistancia .consejo{font-size:.75rem;color:#ffe3ee;font-style:italic;line-height:1.4;}
-#brujulaNorte{position:absolute;top:70px;left:12px;z-index:20;width:64px;height:64px;background:rgba(26,10,20,.92);border:2px solid #ffd166;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.5);backdrop-filter:blur(8px);}
+#brujulaNorte{position:absolute;top:120px;left:12px;z-index:20;width:64px;height:64px;background:rgba(26,10,20,.92);border:2px solid #ffd166;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.5);backdrop-filter:blur(8px);}
 #brujulaNorte .norte{position:absolute;top:4px;font-size:.75rem;font-weight:bold;color:#ff5c8a;}
 #brujulaNorte .sur{position:absolute;bottom:4px;font-size:.75rem;font-weight:bold;color:#888;}
 #brujulaNorte .este{position:absolute;right:5px;font-size:.75rem;font-weight:bold;color:#888;}
@@ -157,12 +157,7 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 .puzzle-score{text-align:center;color:#ffd166;font-size:1.1rem;font-weight:bold;margin:10px 0;padding:10px;background:rgba(255,209,102,.1);border-radius:10px;}
 .confeti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200;overflow:hidden;}
 .confeti-piece{position:absolute;width:10px;height:10px;animation:caer 3s ease-in forwards;}
-@keyframes caer{0%{transform:translateY(-100vh) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
-.selfie-video{width:min(300px,85vw);height:min(300px,85vw);background:#000;border-radius:14px;border:3px solid #ffd166;object-fit:cover;display:block;margin:0 auto;}
-.selfie-calendario{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:14px;}
-.selfie-dia{aspect-ratio:1;border-radius:8px;background:#2a0f1e;border:1px solid rgba(255,209,102,.2);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#c9a3b6;overflow:hidden;position:relative;}
-.selfie-dia.tiene-foto{background-size:cover;background-position:center;border:2px solid #ff5c8a;cursor:pointer;}
-.selfie-dia.hoy{border:2px solid #ffd166;box-shadow:0 0 12px rgba(255,209,102,.6);}
+@keyframes caer{0%{transform:translateY(-100vh) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}.selfie-video{width:min(300px,85vw);height:min(300px,85vw);background:#000;border-radius:14px;border:3px solid #ffd166;object-fit:cover;display:block;margin:0 auto;}
 .fecha-card{background:linear-gradient(135deg,#4a0f2e,#7a1140);border:2px solid rgba(255,209,102,.4);border-radius:20px;padding:20px;margin:14px 0;position:relative;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.4);}
 .fecha-card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:radial-gradient(circle,rgba(255,92,138,.4),transparent 70%);border-radius:50%;}
 .fecha-card .icono-grande{font-size:2.5rem;margin-bottom:10px;display:block;animation:latidoIcono 2s ease-in-out infinite;}
@@ -183,10 +178,8 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 .calendario-dia.es-aniversario{background:linear-gradient(135deg,#7a1140,#c9184a);border-color:#ffd166;}
 .calendario-dia.es-cumple-el{background:linear-gradient(135deg,#1976D2,#0D47A1);border-color:#64B5F6;}
 .calendario-dia.es-cumple-ella{background:linear-gradient(135deg,#9C27B0,#6A1B9A);border-color:#CE93D8;}
+.calendario-dia.es-cita{background:linear-gradient(135deg,#ff8c42,#c9184a);border-color:#ffd166;}
 .calendario-dia .emoji-dia{font-size:.85rem;line-height:1;}
-.leyenda-fechas{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,209,102,.2);}
-.leyenda-fechas-item{display:flex;align-items:center;gap:5px;font-size:.7rem;color:#ffe3ee;}
-.leyenda-fechas-color{width:12px;height:12px;border-radius:4px;border:1px solid rgba(255,255,255,.3);}
 #burbujaDias{position:fixed;bottom:20px;left:20px;z-index:60;background:linear-gradient(135deg,#ff5c8a,#c9184a);border:3px solid #ffd166;border-radius:50px;padding:10px 18px;color:#fff;font-weight:bold;font-size:.9rem;box-shadow:0 6px 20px rgba(255,92,138,.5),0 0 0 3px rgba(255,209,102,.2);display:none;align-items:center;gap:8px;animation:flotarDias 3s ease-in-out infinite;backdrop-filter:blur(8px);user-select:none;}
 #burbujaDias.visible{display:flex;}
 #burbujaDias .corazon{font-size:1.2rem;animation:latidoCorazon 1.5s ease-in-out infinite;}
@@ -215,19 +208,83 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 .album-vacio .icono{font-size:4rem;display:block;margin-bottom:12px;opacity:.5;}
 #albumViewer{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,.95);display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px;}
 #albumViewer.activo{display:flex;}
-#albumViewer img{max-width:95vw;max-height:75vh;border-radius:14px;border:3px solid #ffd166;box-shadow:0 20px 60px rgba(0,0,0,.8);}
+#albumViewer img{max-width:95vw;max-height:70vh;border-radius:14px;border:3px solid #ffd166;box-shadow:0 20px 60px rgba(0,0,0,.8);}
 #albumViewer .cerrar-viewer{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:2px solid #fff;color:#fff;width:42px;height:42px;border-radius:50%;font-size:1.4rem;cursor:pointer;}
 #albumViewer .detalle{color:#ffd166;font-weight:bold;margin-top:14px;text-align:center;font-size:.95rem;}
 #albumViewer .fecha-det{color:#ffb3c9;font-size:.8rem;margin-top:4px;}
 #albumViewer .msg-det{color:#fff;font-style:italic;margin-top:10px;max-width:90vw;text-align:center;font-size:.9rem;padding:10px 18px;background:rgba(255,92,138,.2);border-radius:12px;}
+#albumViewer .btn-descargar-album{margin-top:14px;padding:10px 22px;background:linear-gradient(90deg,#4CAF50,#2e7d32);border:none;border-radius:30px;color:#fff;font-weight:bold;font-size:.85rem;cursor:pointer;box-shadow:0 4px 12px rgba(76,175,80,.4);}
+#albumViewer .btn-descargar-album:hover{transform:scale(1.05);}
 .album-subir-box{background:linear-gradient(160deg,#3d0a24,#7a1140);border:2px solid #ffd166;border-radius:24px;max-width:500px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.6);text-align:center;max-height:90vh;overflow-y:auto;}
 .album-subir-box h3{color:#ffd166;margin-bottom:16px;font-size:1.1rem;}
 .album-preview{width:min(280px,80vw);aspect-ratio:1;object-fit:cover;border-radius:14px;border:3px solid #ffd166;display:block;margin:0 auto 14px;background:#2a0f1e;}
 .album-input{width:100%;padding:12px 16px;border-radius:14px;border:2px solid rgba(255,209,102,.4);background:rgba(26,10,20,.85);color:#fff;font-size:.9rem;outline:none;margin-bottom:10px;font-family:inherit;resize:vertical;min-height:60px;}
 .album-input:focus{border-color:#ffd166;}
-@media(max-width:600px){.chip{font-size:.7rem;padding:6px 10px;}.pergamino{padding:16px 14px;}#menuPrincipal{padding:20px 14px;}.menu-header h1{font-size:1.4rem;}.menu-opcion{padding:14px 8px;min-height:105px;}.menu-opcion .icono{font-size:1.9rem;}.menu-opcion .texto strong{font-size:.8rem;}.menu-opcion .texto small{font-size:.6rem;}#indicadorDistancia{padding:8px 10px;min-width:150px;top:60px;}#indicadorDistancia .distancia{font-size:1.1rem;}#brujulaNorte{width:54px;height:54px;top:60px;}#burbujaDias{bottom:15px;left:15px;padding:8px 14px;font-size:.8rem;}#burbujaDias .numero{font-size:.95rem;}#burbujaDias .texto{font-size:.65rem;}.fecha-card{padding:16px;}.fecha-card .icono-grande{font-size:2rem;}.calendario-dia{font-size:.65rem;}#qrReaderBox{width:min(300px,88vw);height:min(300px,88vw);}.marco-qr{width:180px;height:180px;}.album-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));}}
+/* SELFIES COMPARTIDAS */
+.selfie-contador{text-align:center;color:#ffb3c9;font-size:.85rem;margin-bottom:12px;padding:8px 14px;background:rgba(74,15,46,.5);border-radius:20px;display:inline-block;border:1px solid rgba(255,209,102,.3);}
+.selfie-contador strong{color:#ffd166;font-size:1.1rem;}
+.selfie-calendario-compartido{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:14px;}
+.selfie-dia-comp{aspect-ratio:1;border-radius:10px;background:rgba(74,15,46,.4);border:1px solid rgba(255,209,102,.15);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.75rem;color:#ffe3ee;overflow:hidden;position:relative;cursor:default;}
+.selfie-dia-comp.con-fotos{background-size:cover;background-position:center;border:2px solid #ff5c8a;cursor:pointer;box-shadow:0 4px 12px rgba(255,92,138,.4);}
+.selfie-dia-comp.con-fotos:hover{transform:scale(1.05);box-shadow:0 6px 18px rgba(255,92,138,.7);}
+.selfie-dia-comp.es-hoy{border:2px solid #ffd166;box-shadow:0 0 15px rgba(255,209,102,.8);}
+.selfie-dia-comp .num-dia{position:absolute;top:3px;left:5px;font-size:.7rem;font-weight:bold;background:rgba(0,0,0,.6);color:#fff;padding:1px 5px;border-radius:6px;z-index:2;}
+.selfie-dia-comp .badge-fotos{position:absolute;bottom:3px;right:3px;background:linear-gradient(90deg,#ff5c8a,#c9184a);color:#fff;font-size:.6rem;font-weight:bold;padding:2px 6px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.5);z-index:2;}
+/* VISOR DE SELFIES */
+#selfieDiaViewer{position:fixed;top:0;left:0;right:0;bottom:0;z-index:210;background:rgba(0,0,0,.96);display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:60px 16px 20px;overflow-y:auto;}
+#selfieDiaViewer.activo{display:flex;}
+#selfieDiaViewer .titulo-dia{color:#ffd166;font-size:1.2rem;font-weight:bold;margin-bottom:16px;text-align:center;}
+#selfieDiaViewer .fotos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;width:100%;max-width:600px;}
+#selfieDiaViewer .foto-item{position:relative;border-radius:14px;overflow:hidden;border:3px solid #ffd166;box-shadow:0 8px 30px rgba(0,0,0,.6);background:#2a0f1e;}
+#selfieDiaViewer .foto-item img{width:100%;display:block;aspect-ratio:1;object-fit:cover;}
+#selfieDiaViewer .foto-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.9));padding:20px 10px 10px;color:#fff;font-size:.8rem;}
+#selfieDiaViewer .foto-autor{font-weight:bold;color:#ffd166;}
+#selfieDiaViewer .foto-hora{color:#ffb3c9;font-size:.7rem;}
+#selfieDiaViewer .btn-descargar{position:absolute;top:8px;right:8px;background:linear-gradient(135deg,#4CAF50,#2e7d32);border:none;color:#fff;padding:6px 12px;border-radius:20px;cursor:pointer;font-size:.7rem;font-weight:bold;box-shadow:0 3px 10px rgba(0,0,0,.5);}
+#selfieDiaViewer .btn-descargar:hover{transform:scale(1.05);}
+#selfieDiaViewer .btn-cerrar-viewer{position:fixed;top:16px;right:16px;background:rgba(255,255,255,.15);border:2px solid #fff;color:#fff;width:44px;height:44px;border-radius:50%;font-size:1.4rem;cursor:pointer;z-index:5;}
+/* CITAS */
+.cita-card{background:linear-gradient(135deg,#4a0f2e,#7a1140);border:2px solid rgba(255,209,102,.4);border-radius:16px;padding:14px 16px;margin:10px 0;position:relative;box-shadow:0 4px 12px rgba(0,0,0,.4);transition:.25s;}
+.cita-card:hover{transform:translateX(4px);border-color:#ffd166;}
+.cita-card .cita-fecha{display:inline-block;background:linear-gradient(90deg,#ff5c8a,#c9184a);color:#fff;padding:4px 12px;border-radius:14px;font-size:.75rem;font-weight:bold;margin-bottom:8px;box-shadow:0 3px 8px rgba(255,92,138,.4);}
+.cita-card .cita-titulo{color:#ffd166;font-weight:bold;font-size:1rem;margin-bottom:6px;}
+.cita-card .cita-desc{color:#ffe3ee;font-size:.85rem;line-height:1.5;margin-bottom:6px;}
+.cita-card .cita-autor{color:#ffb3c9;font-size:.7rem;font-style:italic;}
+.cita-card .btn-borrar-cita{position:absolute;top:10px;right:10px;background:rgba(255,92,92,.85);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+.cita-card .btn-borrar-cita:hover{background:rgba(255,92,92,1);transform:scale(1.1);}
+.cita-vacia{text-align:center;padding:30px 20px;color:#ffb3c9;background:rgba(74,15,46,.3);border-radius:14px;border:1px dashed rgba(255,209,102,.3);}
+/* CONTADOR TESOROS */
+.tesoros-contador{display:flex;gap:8px;justify-content:center;align-items:center;padding:10px 16px;background:rgba(26,10,20,.92);border:2px solid rgba(255,209,102,.4);border-radius:40px;position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:22;box-shadow:0 6px 20px rgba(0,0,0,.5);backdrop-filter:blur(8px);}
+.tesoros-contador .tesoro-slot{width:32px;height:32px;border-radius:50%;background:rgba(74,15,46,.7);border:2px dashed rgba(255,209,102,.4);display:flex;align-items:center;justify-content:center;font-size:1rem;transition:.3s;}
+.tesoros-contador .tesoro-slot.completado{background:linear-gradient(135deg,#ff5c8a,#c9184a);border:2px solid #ffd166;box-shadow:0 0 15px rgba(255,209,102,.8);}
+.tesoros-contador .tesoro-slot.encontrado-otro{background:linear-gradient(135deg,#4CAF50,#2e7d32);border:2px solid #81C784;opacity:.7;}
+.tesoros-contador .contador-txt{color:#ffd166;font-weight:bold;font-size:.85rem;margin-left:6px;}
+@media(max-width:600px){
+.chip{font-size:.7rem;padding:6px 10px;}
+.pergamino{padding:16px 14px;}
+#menuPrincipal{padding:20px 14px;}
+.menu-header h1{font-size:1.4rem;}
+.menu-opcion{padding:14px 8px;min-height:105px;}
+.menu-opcion .icono{font-size:1.9rem;}
+.menu-opcion .texto strong{font-size:.8rem;}
+.menu-opcion .texto small{font-size:.6rem;}
+#indicadorDistancia{padding:8px 10px;min-width:150px;top:110px;}
+#indicadorDistancia .distancia{font-size:1.1rem;}
+#brujulaNorte{width:54px;height:54px;top:110px;}
+#burbujaDias{bottom:15px;left:15px;padding:8px 14px;font-size:.8rem;}
+#burbujaDias .numero{font-size:.95rem;}
+#burbujaDias .texto{font-size:.65rem;}
+.fecha-card{padding:16px;}
+.fecha-card .icono-grande{font-size:2rem;}
+.calendario-dia{font-size:.65rem;}
+#qrReaderBox{width:min(300px,88vw);height:min(300px,88vw);}
+.marco-qr{width:180px;height:180px;}
+.album-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));}
+.tesoros-contador{top:60px;padding:8px 12px;}
+.tesoros-contador .tesoro-slot{width:28px;height:28px;font-size:.85rem;}
+}
 </style>
-</head>   
+</head>
   <body>
 <div id="app">
 
@@ -275,7 +332,7 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 
 <button class="menu-opcion" onclick="abrirSeccion('mapa')">
 <span class="icono">🗺️</span>
-<span class="texto"><strong>Mapa del Tesoro</strong><small>Encuentra el tesoro del día</small></span>
+<span class="texto"><strong>Mapa del Tesoro</strong><small>3 tesoros por día</small></span>
 </button>
 
 <button class="menu-opcion" onclick="abrirSeccion('album')">
@@ -283,14 +340,19 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 <span class="texto"><strong>Álbum Compartido</strong><small>Fotos para los dos</small></span>
 </button>
 
+<button class="menu-opcion" onclick="abrirSeccion('selfie')">
+<span class="icono">📸</span>
+<span class="texto"><strong>Selfies Compartidas</strong><small>3 por día</small></span>
+</button>
+
 <button class="menu-opcion" onclick="abrirSeccion('cupones')">
 <span class="icono">🎟️</span>
-<span class="texto"><strong>Cupones</strong><small>100 por descubrir</small></span>
+<span class="texto"><strong>Cupones</strong><small>100 compartidos</small></span>
 </button>
 
 <button class="menu-opcion" onclick="abrirSeccion('galeria')">
 <span class="icono">🖼️</span>
-<span class="texto"><strong>Galería</strong><small>Tesoros encontrados</small></span>
+<span class="texto"><strong>Galería Tesoros</strong><small>De los dos</small></span>
 </button>
 
 <button class="menu-opcion" onclick="abrirSeccion('puzzle')">
@@ -298,14 +360,9 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 <span class="texto"><strong>Puzzle</strong><small>Arma nuestra foto</small></span>
 </button>
 
-<button class="menu-opcion" onclick="abrirSeccion('selfie')">
-<span class="icono">📸</span>
-<span class="texto"><strong>Selfie</strong><small>Recuerdo del día</small></span>
-</button>
-
 <button class="menu-opcion" onclick="abrirSeccion('fechas')">
 <span class="icono">📅</span>
-<span class="texto"><strong>Fechas</strong><small>Aniv. y cumpleaños</small></span>
+<span class="texto"><strong>Fechas y Citas</strong><small>Aniv. y eventos</small></span>
 </button>
 
 <button class="menu-opcion" onclick="abrirSeccion('adivinanzas')">
@@ -316,12 +373,17 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 </div>
 <div class="menu-footer">Hecho con 💖 para nosotros</div>
 </div>
-
-<!-- ============ SECCIONES ============ -->
+  <!-- ============ SECCIONES ============ -->
 <div class="seccion" id="seccion-mapa">
 <div id="map"></div>
 <div id="hud">
 <div class="chip">💕 <strong id="chipDias">0</strong> dias</div>
+</div>
+<div class="tesoros-contador" id="tesorosContador">
+<div class="tesoro-slot" id="slot1">1</div>
+<div class="tesoro-slot" id="slot2">2</div>
+<div class="tesoro-slot" id="slot3">3</div>
+<span class="contador-txt" id="contadorTxt">0/3</span>
 </div>
 <button class="btn-salir-mapa" onclick="cerrarSeccion()">⬅️ Salir</button>
 <div id="brujulaNorte">
@@ -356,6 +418,14 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 <div class="seccion-body"><div id="albumContainer"></div></div>
 </div>
 
+<div class="seccion" id="seccion-selfie">
+<div class="seccion-header">
+<button class="btn-volver" onclick="cerrarSeccion()">⬅️ Salir</button>
+<div class="seccion-titulo">📸 Selfies Compartidas</div>
+</div>
+<div class="seccion-body"><div id="selfieContainer"></div></div>
+</div>
+
 <div class="seccion" id="seccion-cupones">
 <div class="seccion-header">
 <button class="btn-volver" onclick="cerrarSeccion()">⬅️ Salir</button>
@@ -367,7 +437,7 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 <div class="seccion" id="seccion-galeria">
 <div class="seccion-header">
 <button class="btn-volver" onclick="cerrarSeccion()">⬅️ Salir</button>
-<div class="seccion-titulo">🖼️ Galería de Recuerdos</div>
+<div class="seccion-titulo">🖼️ Galería Compartida</div>
 </div>
 <div class="seccion-body"><div id="galeriaContainer"></div></div>
 </div>
@@ -380,18 +450,10 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 <div class="seccion-body"><div id="puzzleContainer"></div></div>
 </div>
 
-<div class="seccion" id="seccion-selfie">
-<div class="seccion-header">
-<button class="btn-volver" onclick="cerrarSeccion()">⬅️ Salir</button>
-<div class="seccion-titulo">📸 Selfie del Día</div>
-</div>
-<div class="seccion-body"><div id="selfieContainer"></div></div>
-</div>
-
 <div class="seccion" id="seccion-fechas">
 <div class="seccion-header">
 <button class="btn-volver" onclick="cerrarSeccion()">⬅️ Salir</button>
-<div class="seccion-titulo">📅 Fechas Especiales</div>
+<div class="seccion-titulo">📅 Fechas y Citas</div>
 </div>
 <div class="seccion-body"><div id="fechasContainer"></div></div>
 </div>
@@ -403,7 +465,8 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 </div>
 <div class="seccion-body"><div id="adivinanzasContainer"></div></div>
 </div>
-  <!-- ============ MODALES ============ -->
+
+<!-- ============ MODALES ============ -->
 <div class="modal" id="modalPergamino">
 <div class="modal-box" style="background:none;border:none;padding:0;box-shadow:none;">
 <div class="pergamino">
@@ -430,14 +493,6 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 </div>
 </div>
 
-<div class="modal" id="modalSelfieVer">
-<div class="modal-box" style="max-width:90vw;background:none;border:none;padding:0;">
-<button class="cerrar" onclick="cerrarModal('modalSelfieVer')" style="background:rgba(0,0,0,.6);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;padding:0;">✖</button>
-<img id="selfieVerImg" style="width:min(400px,88vw);border-radius:16px;border:3px solid #ffd166;box-shadow:0 20px 60px rgba(0,0,0,.6);display:block;margin:0 auto;">
-<p id="selfieVerFecha" style="text-align:center;margin-top:12px;color:#ffd166;font-weight:bold;"></p>
-</div>
-</div>
-
 <!-- ============ ALBUM: VER FOTO GRANDE ============ -->
 <div id="albumViewer">
 <button class="cerrar-viewer" onclick="cerrarAlbumViewer()">✖</button>
@@ -445,6 +500,7 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 <div class="detalle" id="albumViewerAutor"></div>
 <div class="fecha-det" id="albumViewerFecha"></div>
 <div class="msg-det" id="albumViewerMsg" style="display:none;"></div>
+<button class="btn-descargar-album" id="btnDescargarAlbum">⬇️ Descargar foto</button>
 </div>
 
 <!-- ============ ALBUM: SUBIR FOTO ============ -->
@@ -458,6 +514,28 @@ input[type=password]{width:min(320px,80vw);padding:14px 18px;border-radius:30px;
 <button class="album-btn" id="btnAlbumSubir">💖 Subir al álbum</button>
 <button class="album-btn sec" id="btnAlbumCancelar">Cancelar</button>
 </div>
+</div>
+</div>
+
+<!-- ============ SELFIES: VISOR DEL DÍA ============ -->
+<div id="selfieDiaViewer">
+<button class="btn-cerrar-viewer" onclick="cerrarSelfieDiaViewer()">✖</button>
+<div class="titulo-dia" id="selfieDiaTitulo"></div>
+<div class="fotos-grid" id="selfieDiaFotos"></div>
+</div>
+
+<!-- ============ SELFIE: TOMAR FOTO (modal) ============ -->
+<div class="modal" id="modalSelfieCam">
+<div class="modal-box" style="max-width:520px;">
+<button class="cerrar" onclick="cerrarModalSelfieCam()">✖</button>
+<h2 style="color:#ffd166;text-align:center;margin-bottom:14px;">📸 Tomar selfie</h2>
+<video id="selfieVideo" class="selfie-video" autoplay playsinline></video>
+<canvas id="selfieCanvas" style="display:none;"></canvas>
+<div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;">
+<button class="album-btn" id="btnTomarSelfie">📸 Capturar</button>
+<button class="album-btn sec" id="btnCambiarCam">🔄 Cambiar</button>
+</div>
+<textarea id="selfieMensaje" class="album-input" placeholder="Un mensaje para tu amor (opcional)" maxlength="150" style="margin-top:14px;"></textarea>
 </div>
 </div>
 
@@ -485,7 +563,8 @@ var CONFIG = {
   CUMPLE_ESTUARDO: { dia: 10, mes: 2, nombre: "Estuardo" },
   CUMPLE_ANA: { dia: 5, mes: 8, nombre: "Ana" },
   ANIVERSARIO: { dia: 14, mes: 12, año: 2019, nombre: "Nuestro Aniversario" },
-  CODIGO_QR_ACCESO: "siestuvierasaqui"
+  CODIGO_QR_ACCESO: "siestuvierasaqui",
+  MAX_SELFIES_DIA: 3
 };
 
 var LUGARES = [
@@ -639,26 +718,76 @@ var PUZZLE_IMAGENES = [
 ];
 
 var ADIVINANZAS_SUGERIDAS = ["¿Qué día nos conocimos?","¿Cuál fue nuestra primera cita?","¿Cuál es mi comida favorita?","¿Qué canción me recuerda a ti?","¿Cuál fue el primer regalo que me diste?","¿Qué es lo que más te gusta de mí?","¿Cuál es nuestro mejor recuerdo juntos?","¿Qué lugar te gustaría visitar conmigo?"];
-
-var LS = { tesoros:"ma_tesoros", cupones:"ma_cupones", puzzle:"ma_puzzle", selfies:"ma_selfies", adivinanzas:"ma_adivinanzas", pistasVistas:"ma_pistas_vistas" };
-var usuario = null, mapa = null, capas = null, marcadores = [], tesoroHoy = null;
-var lugarActivo = null;
-var selfieStream = null;
-var facingMode = 'user';
-var puzzles = {};
-var cuponesCanjeados = {};
+      /* ============ VARIABLES GLOBALES ============ */
+var usuario = null, mapa = null, capas = null, marcadores = [], tesorosHoy = [];
+var lugarActivo = null, tesoroActivoIdx = null;
+var selfieStream = null, facingMode = 'user';
 var ultimaNotifDireccion = '';
-var pergaminoAbiertoAuto = false;
-var qrScanner = null;
-var qrEscaneadoExito = false;
+var qrScanner = null, qrEscaneadoExito = false;
+var firebaseReady = false;
+var tesorosEncontrados = {};
 
+/* ============ UTILIDADES ============ */
 function get(k, d){ try{ var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
 function set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 function cerrarModal(id){ document.getElementById(id).classList.remove('activo'); }
 function abrirModal(id){ document.getElementById(id).classList.add('activo'); }
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('visible');clearTimeout(t._id);t._id=setTimeout(function(){t.classList.remove('visible');},2800);}
 function haversine(a,b){var R=6371,dLat=(b[0]-a[0])*Math.PI/180,dLng=(b[1]-a[1])*Math.PI/180;var la1=a[0]*Math.PI/180,la2=b[0]*Math.PI/180;var h=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)*Math.sin(dLng/2);return 2*R*Math.asin(Math.sqrt(h));}
-function distanciaAlTesoro(){if(!tesoroHoy||!mapa)return null;var c=mapa.getCenter();return haversine([c.lat,c.lng],[tesoroHoy.lat,tesoroHoy.lng]);}
+
+/* ============ 3 TESOROS DEL DÍA ============ */
+function calcularTesorosHoy(){
+  var inicio = new Date("2025-01-01T00:00:00");
+  var dias = Math.floor((Date.now() - inicio.getTime()) / 86400000);
+  var total = LUGARES.length;
+  var arr = [];
+  for(var i = 0; i < 3; i++){
+    var idx = ((dias * 3 + i) % total + total) % total;
+    var l = LUGARES[idx];
+    arr.push({ n: l.n, lat: l.lat, lng: l.lng, p1: l.p1, p2: l.p2, p3: l.p3, idx: idx, slot: i });
+  }
+  return arr;
+}
+
+function distanciaAlTesoroSlot(slot){
+  if(!tesorosHoy[slot] || !mapa) return null;
+  var c = mapa.getCenter();
+  return haversine([c.lat, c.lng], [tesorosHoy[slot].lat, tesorosHoy[slot].lng]);
+}
+
+function distanciaAlTesoroMasCercano(){
+  if(!mapa || tesorosHoy.length === 0) return null;
+  var mejor = null;
+  for(var i = 0; i < tesorosHoy.length; i++){
+    var d = distanciaAlTesoroSlot(i);
+    if(d !== null && (mejor === null || d < mejor.dist)){
+      mejor = { dist: d, slot: i, tesoro: tesorosHoy[i] };
+    }
+  }
+  return mejor;
+}
+
+function calcularDireccionA(tesoro){
+  if(!tesoro || !mapa) return null;
+  var c = mapa.getCenter();
+  var lat1 = c.lat * Math.PI / 180;
+  var lat2 = tesoro.lat * Math.PI / 180;
+  var dLng = (tesoro.lng - c.lng) * Math.PI / 180;
+  var y = Math.sin(dLng) * Math.cos(lat2);
+  var x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+  var rumbo = Math.atan2(y, x) * 180 / Math.PI;
+  rumbo = (rumbo + 360) % 360;
+  var dir = 'Norte';
+  if(rumbo >= 337.5 || rumbo < 22.5) dir = 'Norte';
+  else if(rumbo < 67.5) dir = 'Noreste';
+  else if(rumbo < 112.5) dir = 'Este';
+  else if(rumbo < 157.5) dir = 'Sureste';
+  else if(rumbo < 202.5) dir = 'Sur';
+  else if(rumbo < 247.5) dir = 'Suroeste';
+  else if(rumbo < 292.5) dir = 'Oeste';
+  else dir = 'Noroeste';
+  return { direccion: dir, rumbo: rumbo };
+}
 
 /* ============ QR SCANNER ============ */
 function iniciarEscaneoQR(){
@@ -696,16 +825,22 @@ function iniciarSesion(pass){var p=pass.trim().toLowerCase();if(p==='mavie')usua
 
 /* ============ APP ============ */
 function iniciarApp(){
-tesoroHoy=calcularTesoroHoy();
-ultimaNotifDireccion='';
-pergaminoAbiertoAuto=false;
-actualizarDias();
-setInterval(actualizarDias,60000);
-document.getElementById('login').style.display='none';
-document.getElementById('menuPrincipal').style.display='flex';
-document.getElementById('burbujaDias').classList.remove('visible');
-document.getElementById('btnPergamino').onclick=function(){if(!tesoroHoy){toast("No hay tesoro activo");return;}mostrarPergamino(LUGARES[tesoroHoy.idx],tesoroHoy.idx);};
+  tesorosHoy = calcularTesorosHoy();
+  ultimaNotifDireccion = '';
+  actualizarDias();
+  setInterval(actualizarDias, 60000);
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('menuPrincipal').style.display = 'flex';
+  document.getElementById('burbujaDias').classList.remove('visible');
+  document.getElementById('btnPergamino').onclick = function(){
+    if(tesorosHoy.length === 0){ toast("No hay tesoros activos"); return; }
+    mostrarPergaminoMulti();
+  };
+  // Cargar tesoros encontrados de Firebase
+  setTimeout(function(){ escucharTesorosFirebase(); }, 800);
 }
+
+function actualizarDias(){var dias=Math.floor((Date.now()-CONFIG.INICIO.getTime())/86400000);var el=document.getElementById('chipDias');if(el)el.textContent=dias;var n=document.getElementById('burbujaNumero');if(n)n.textContent=dias;}
 
 function abrirSeccion(nombre){
 document.getElementById('menuPrincipal').style.display='none';
@@ -714,13 +849,13 @@ var sec=document.getElementById('seccion-'+nombre);
 if(sec)sec.classList.add('activa');
 document.getElementById('burbujaDias').classList.add('visible');
 if(nombre==='mapa'){
-setTimeout(function(){if(!mapa)initMapa();mapa.invalidateSize();dibujarMarcadores();actualizarIndicadorDistancia();if(!pergaminoAbiertoAuto&&tesoroHoy){pergaminoAbiertoAuto=true;setTimeout(function(){mostrarPergamino(LUGARES[tesoroHoy.idx],tesoroHoy.idx);},600);}},100);
+setTimeout(function(){if(!mapa)initMapa();mapa.invalidateSize();dibujarMarcadores();actualizarIndicadorDistancia();},100);
 }else if(nombre==='album'){renderAlbum();}
-else if(nombre==='cupones'){renderCupones();}
-else if(nombre==='galeria'){renderGaleria();}
+else if(nombre==='selfie'){renderSelfieCompartida();}
+else if(nombre==='cupones'){renderCuponesCompartidos();}
+else if(nombre==='galeria'){renderGaleriaCompartida();}
 else if(nombre==='puzzle'){renderPuzzle();}
-else if(nombre==='selfie'){renderSelfie();}
-else if(nombre==='fechas'){renderFechas();}
+else if(nombre==='fechas'){renderFechasConCitas();}
 else if(nombre==='adivinanzas'){renderAdivinanzas();}
 }
 
@@ -731,328 +866,214 @@ document.getElementById('menuPrincipal').style.display='flex';
 document.getElementById('burbujaDias').classList.remove('visible');
 }
 
-function actualizarDias(){var dias=Math.floor((Date.now()-CONFIG.INICIO.getTime())/86400000);var el=document.getElementById('chipDias');if(el)el.textContent=dias;var n=document.getElementById('burbujaNumero');if(n)n.textContent=dias;}
-
 function initMapa(){if(mapa)return;mapa=L.map('map',{zoomControl:true}).setView(CONFIG.CASA,6);var sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri'});var cal=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'OSM'});sat.addTo(mapa);capas={"Satelite":sat,"Calles":cal};L.control.layers(capas,null,{position:'topright'}).addTo(mapa);mapa.on('move',function(){actualizarIndicadorDistancia();});mapa.on('moveend',function(){dibujarMarcadores();actualizarIndicadorDistancia();});}
 
-function calcularTesoroHoy(){var inicio=new Date("2025-01-01T00:00:00");var dias=Math.floor((Date.now()-inicio.getTime())/86400000);var idx=((dias%LUGARES.length)+LUGARES.length)%LUGARES.length;var l=LUGARES[idx];return{n:l.n,lat:l.lat,lng:l.lng,p1:l.p1,p2:l.p2,p3:l.p3,idx:idx};}
-
-function calcularDireccion(){if(!tesoroHoy||!mapa)return null;var c=mapa.getCenter();var lat1=c.lat*Math.PI/180;var lat2=tesoroHoy.lat*Math.PI/180;var dLng=(tesoroHoy.lng-c.lng)*Math.PI/180;var y=Math.sin(dLng)*Math.cos(lat2);var x=Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLng);var rumbo=Math.atan2(y,x)*180/Math.PI;rumbo=(rumbo+360)%360;var dir='Norte';if(rumbo>=337.5||rumbo<22.5)dir='Norte';else if(rumbo<67.5)dir='Noreste';else if(rumbo<112.5)dir='Este';else if(rumbo<157.5)dir='Sureste';else if(rumbo<202.5)dir='Sur';else if(rumbo<247.5)dir='Suroeste';else if(rumbo<292.5)dir='Oeste';else dir='Noroeste';return{direccion:dir,rumbo:rumbo};}
-
 function actualizarIndicadorDistancia(){
-var d=distanciaAlTesoro();
-if(d===null)return;
-var indicador=document.getElementById('indicadorDistancia');
+var cercano = distanciaAlTesoroMasCercano();
+if(!cercano) return;
+var metros = cercano.dist * 1000;
 var distTexto=document.getElementById('distanciaTexto');
 var direccionTexto=document.getElementById('direccionTexto');
 var consejoTexto=document.getElementById('consejoTexto');
-var metros=d*1000;
+var indicador=document.getElementById('indicadorDistancia');
 if(metros<1000){distTexto.textContent=metros.toFixed(0)+' m';}else if(metros<10000){distTexto.textContent=(metros/1000).toFixed(2)+' km';}else{distTexto.textContent=(metros/1000).toFixed(0)+' km';}
-var dir=calcularDireccion();
+var dir=calcularDireccionA(cercano.tesoro);
 if(dir)direccionTexto.textContent=dir.direccion;
 if(metros<=CONFIG.DIST_TESORO){consejoTexto.textContent='¡Estás encima! Toca el corazón 💖';}else if(metros<=1000){consejoTexto.textContent='¡Ya casi! Sigue moviéndote';}else{consejoTexto.textContent='Mueve el mapa hacia '+(dir?dir.direccion.toLowerCase():'el tesoro');}
 indicador.classList.remove('cerca','muycerca');
 if(metros<=CONFIG.DIST_TESORO*10)indicador.classList.add('muycerca');else if(metros<=5000)indicador.classList.add('cerca');
 if(metros<=5000&&dir){var notif=document.getElementById('notifDireccion');var notifFlecha=document.getElementById('notifFlecha');var notifTexto=document.getElementById('notifTexto');if(ultimaNotifDireccion!==dir.direccion){ultimaNotifDireccion=dir.direccion;var flechas={'Norte':'↑','Noreste':'↗','Este':'→','Sureste':'↘','Sur':'↓','Suroeste':'↙','Oeste':'←','Noroeste':'↖'};notifFlecha.textContent=flechas[dir.direccion]||'↑';notifTexto.textContent='Ve hacia el '+dir.direccion.toLowerCase();notif.classList.add('visible');setTimeout(function(){notif.classList.remove('visible');},2500);}}
-verificarNotificacionesPistas(metros);
 }
-
-function verificarNotificacionesPistas(metros){
-var hoy=CONFIG.HOY;
-var vistas=get(LS.pistasVistas,{});
-if(vistas.dia!==hoy){vistas={dia:hoy,p1:false,p2:false,p3:false};set(LS.pistasVistas,vistas);}
-if(!vistas.p1&&metros<=CONFIG.DIST_PISTA_1){vistas.p1=true;set(LS.pistasVistas,vistas);mostrarNotifPista('🌎','¡Pista desbloqueada!','Pista 1 (Continente) disponible 📜');}
-if(!vistas.p2&&metros<=CONFIG.DIST_PISTA_2){vistas.p2=true;set(LS.pistasVistas,vistas);mostrarNotifPista('🔓','¡Nueva pista desbloqueada!','Pista 2 (Pais) disponible 📜');}
-if(!vistas.p3&&metros<=CONFIG.DIST_PISTA_3){vistas.p3=true;set(LS.pistasVistas,vistas);mostrarNotifPista('🎯','¡Pista final desbloqueada!','Pista 3 (Ciudad) disponible 📜');}
-}
-
-function mostrarNotifPista(icono,titulo,texto){var notif=document.createElement('div');notif.className='notif-pista';notif.innerHTML='<div class="icono">'+icono+'</div><div class="titulo">'+titulo+'</div><div class="texto">'+texto+'</div>';document.body.appendChild(notif);setTimeout(function(){notif.classList.add('visible');},100);setTimeout(function(){notif.classList.remove('visible');setTimeout(function(){if(notif.parentNode)notif.remove();},500);},4500);}
 
 function dibujarMarcadores(){
-if(!mapa)return;
-for(var i=0;i<marcadores.length;i++)mapa.removeLayer(marcadores[i]);
-marcadores=[];
-var idxHoy=tesoroHoy?tesoroHoy.idx:-1;
-var d=distanciaAlTesoro();
-if(idxHoy>=0&&d!==null&&d*1000<=CONFIG.DIST_TESORO){
-var l=LUGARES[idxHoy];
-var di=L.divIcon({html:'<div style="font-size:50px;text-align:center;animation:latido 1s ease-in-out infinite;filter:drop-shadow(0 0 15px #ff5c8a);cursor:pointer;">💖</div><style>@keyframes latido{0%,100%{transform:scale(1);}50%{transform:scale(1.35);}}</style>',className:'',iconSize:[70,70],iconAnchor:[35,35]});
-var m=L.marker([l.lat,l.lng],{icon:di}).addTo(mapa);
-m.on('click',function(){encontrarTesoro(idxHoy);});
-marcadores.push(m);
-}
+  if(!mapa) return;
+  for(var i=0;i<marcadores.length;i++) mapa.removeLayer(marcadores[i]);
+  marcadores = [];
+  for(var s = 0; s < tesorosHoy.length; s++){
+    var t = tesorosHoy[s];
+    var yaEncontrado = tesorosEncontrados[s];
+    var d = distanciaAlTesoroSlot(s);
+    if(yaEncontrado){
+      // Marcador verde de ya encontrado
+      var iconoVerde = L.divIcon({
+        html:'<div style="font-size:34px;text-align:center;filter:drop-shadow(0 0 10px #4CAF50);">✅</div>',
+        className:'', iconSize:[44,44], iconAnchor:[22,22]
+      });
+      var mVerde = L.marker([t.lat, t.lng], {icon: iconoVerde}).addTo(mapa);
+      mVerde.bindPopup('<div style="color:#1a0a14;font-family:sans-serif;font-size:.85rem;"><strong>✅ Tesoro '+(s+1)+' encontrado</strong><br>'+t.n+'</div>');
+      marcadores.push(mVerde);
+    } else if(d !== null && d * 1000 <= CONFIG.DIST_TESORO){
+      var iconoCorazon = L.divIcon({
+        html:'<div style="font-size:50px;text-align:center;animation:latido 1s ease-in-out infinite;filter:drop-shadow(0 0 15px #ff5c8a);cursor:pointer;">💖</div><style>@keyframes latido{0%,100%{transform:scale(1);}50%{transform:scale(1.35);}}</style>',
+        className:'', iconSize:[70,70], iconAnchor:[35,35]
+      });
+      (function(slot){
+        var m = L.marker([t.lat, t.lng], {icon: iconoCorazon}).addTo(mapa);
+        m.on('click', function(){ encontrarTesoro(slot); });
+        marcadores.push(m);
+      })(s);
+    }
+  }
+  actualizarContadorTesoros();
 }
 
-function mostrarPergamino(lugar,idx){
-lugarActivo=lugar;
-var dist=distanciaAlTesoro();
-var metros=dist!==null?dist*1000:null;
-document.getElementById('pergaminoTitulo').textContent='📜 Pistas del Tesoro';
-document.getElementById('pergaminoLugar').textContent='📍 Sigue las pistas para encontrar el lugar';
-var html='';
-html+='<div class="pista-pergamino"><span class="etiqueta">✧ Pista 1 - El Continente ✧</span>'+lugar.p1+'</div>';
-if(metros!==null&&metros<=CONFIG.DIST_PISTA_2){html+='<div class="pista-pergamino"><span class="etiqueta">✧ Pista 2 - El Pais ✧</span>'+lugar.p2+'</div>';}else{html+='<div class="pista-pergamino bloqueada"><span class="etiqueta">✧ Pista 2 🔒 ✧</span>Se revela a menos de '+CONFIG.DIST_PISTA_2.toLocaleString()+' metros de distancia.</div>';}
-if(metros!==null&&metros<=CONFIG.DIST_PISTA_3){html+='<div class="pista-pergamino"><span class="etiqueta">✧ Pista 3 - La Ciudad ✧</span>'+lugar.p3+'</div>';}else{html+='<div class="pista-pergamino bloqueada"><span class="etiqueta">✧ Pista 3 🔒 ✧</span>Se revela a menos de '+CONFIG.DIST_PISTA_3.toLocaleString()+' metros de distancia.</div>';}
-var dir=calcularDireccion();
-if(metros!==null&&metros>CONFIG.DIST_TESORO){var consejo='🧭 Mueve el mapa hacia el '+(dir?dir.direccion.toLowerCase():'tesoro');html+='<div style="text-align:center;margin-top:14px;padding:10px;background:rgba(180,160,120,0.2);border-radius:10px;"><p style="font-size:.8rem;color:#7a5f30;">'+consejo+'</p><p style="font-size:.7rem;color:#7a5f30;margin-top:4px;">El corazón aparece a '+CONFIG.DIST_TESORO+' metros</p></div>';}else if(metros!==null&&metros<=CONFIG.DIST_TESORO){html+='<div style="text-align:center;margin-top:14px;padding:10px;background:rgba(76,175,80,0.2);border-radius:10px;"><p style="font-size:.85rem;color:#2e7d32;font-weight:bold;">💖 ¡Estás encima! Busca el corazón en el mapa</p></div>';}
-document.getElementById('pergaminoPistas').innerHTML=html;
-abrirModal('modalPergamino');
+function actualizarContadorTesoros(){
+  var encontrados = 0;
+  for(var s = 0; s < 3; s++){
+    var slot = document.getElementById('slot'+(s+1));
+    if(!slot) continue;
+    slot.className = 'tesoro-slot';
+    if(tesorosEncontrados[s]){
+      slot.className = 'tesoro-slot completado';
+      slot.textContent = '💖';
+      encontrados++;
+    } else {
+      slot.textContent = (s+1);
+    }
+  }
+  var txt = document.getElementById('contadorTxt');
+  if(txt) txt.textContent = encontrados + '/3';
 }
 
-function encontrarTesoro(idx){
-if(navigator.vibrate)navigator.vibrate([200,100,200,100,400]);
-var enc=get(LS.tesoros,{});
-if(enc[idx]){document.getElementById('poemaTexto').textContent=enc[idx].poema;document.getElementById('codigoTexto').textContent=enc[idx].codigo;document.getElementById('btnAvisar').onclick=avisarPorWhatsApp;lugarActivo={n:enc[idx].lugar};abrirModal('modalTesoro');return;}
-var poema=POEMAS[Math.floor(Math.random()*POEMAS.length)];
-document.getElementById('poemaTexto').textContent=poema;
-document.getElementById('codigoTexto').textContent=usuario.codigo;
-enc[idx]={fecha:CONFIG.HOY,poema:poema,lugar:LUGARES[idx].n,codigo:usuario.codigo};
-set(LS.tesoros,enc);
-lugarActivo=LUGARES[idx];
-document.getElementById('btnAvisar').onclick=avisarPorWhatsApp;
-abrirModal('modalTesoro');
-lanzarConfeti();
-dibujarMarcadores();
+function mostrarPergaminoMulti(){
+  var dist = distanciaAlTesoroMasCercano();
+  var metros = dist !== null ? dist.dist * 1000 : null;
+  document.getElementById('pergaminoTitulo').textContent = '📜 Pistas del Tesoro';
+  document.getElementById('pergaminoLugar').textContent = '📍 Hay 3 tesoros hoy. Encuentra los 3 para enviar el mensaje de amor';
+  var html = '';
+  html += '<div style="text-align:center;color:#5a3a10;font-weight:bold;margin-bottom:14px;padding:10px;background:rgba(255,209,102,.3);border-radius:10px;font-size:.9rem;">';
+  html += '🎯 Llevas <strong>' + Object.keys(tesorosEncontrados).filter(function(k){return tesorosEncontrados[k];}).length + '/3</strong> tesoros';
+  html += '</div>';
+  for(var s = 0; s < tesorosHoy.length; s++){
+    var t = tesorosHoy[s];
+    var yaLo = tesorosEncontrados[s];
+    html += '<div class="pista-pergamino" style="border-left:4px solid ' + (yaLo ? '#4CAF50' : '#8b6914') + ';">';
+    html += '<span class="etiqueta">✧ Tesoro ' + (s+1) + (yaLo ? ' ✅ ENCONTRADO' : '') + ' ✧</span>';
+    if(yaLo){
+      html += '<div style="color:#2e7d32;font-weight:bold;">Encontrado: ' + t.n + '</div>';
+    } else {
+      html += '<div><strong>Pista 1 (Continente):</strong> ' + t.p1 + '</div>';
+      // Solo mostramos pista 2 y 3 si estamos cerca del más cercano
+      if(dist && dist.slot === s && metros !== null){
+        if(metros <= CONFIG.DIST_PISTA_2){
+          html += '<div style="margin-top:6px;"><strong>Pista 2 (País):</strong> ' + t.p2 + '</div>';
+        } else {
+          html += '<div style="margin-top:6px;opacity:.5;font-style:italic;">🔒 Pista 2 se revela a menos de 10 km</div>';
+        }
+        if(metros <= CONFIG.DIST_PISTA_3){
+          html += '<div style="margin-top:6px;"><strong>Pista 3 (Ciudad):</strong> ' + t.p3 + '</div>';
+        } else {
+          html += '<div style="margin-top:6px;opacity:.5;font-style:italic;">🔒 Pista 3 se revela a menos de 1 km</div>';
+        }
+      } else {
+        html += '<div style="margin-top:6px;opacity:.5;font-style:italic;">🔒 Acércate al tesoro para más pistas</div>';
+      }
+    }
+    html += '</div>';
+  }
+  document.getElementById('pergaminoPistas').innerHTML = html;
+  abrirModal('modalPergamino');
+}
+
+function encontrarTesoro(slot){
+  if(navigator.vibrate) navigator.vibrate([200,100,200,100,400]);
+  var t = tesorosHoy[slot];
+  var poema = POEMAS[Math.floor(Math.random()*POEMAS.length)];
+  var codigo = usuario.codigo + '-T' + (slot+1);
+  document.getElementById('poemaTexto').textContent = poema;
+  document.getElementById('codigoTexto').textContent = codigo;
+  lugarActivo = t;
+  tesoroActivoIdx = slot;
+  document.getElementById('btnAvisar').onclick = avisarPorWhatsApp;
+  // Verificar si ya está en Firebase
+  var key = CONFIG.HOY + '-slot' + slot;
+  var docRef = window.FB.doc(window.FB.db, 'tesoros', key);
+  window.FB.getDocs ? null : null;
+  // Guardar en Firebase si no existe
+  guardarTesoroEnFirebase(slot, t, poema, codigo);
+  // Abrir modal
+  abrirModal('modalTesoro');
+  lanzarConfeti();
+  // Refrescar marcadores
+  setTimeout(function(){ dibujarMarcadores(); }, 500);
+}
+
+function guardarTesoroEnFirebase(slot, tesoro, poema, codigo){
+  if(!window.FB || !window.FB.setDoc) return;
+  var key = CONFIG.HOY + '-slot' + slot;
+  var docRef = window.FB.doc(window.FB.db, 'tesoros', key);
+  window.FB.setDoc(docRef, {
+    dia: CONFIG.HOY,
+    slot: slot,
+    lugar: tesoro.n,
+    poema: poema,
+    codigo: codigo,
+    autor: usuario.nombre,
+    autorCodigo: usuario.codigo,
+    encontrado: true
+  }).then(function(){
+    console.log("✅ Tesoro guardado en Firebase");
+  }).catch(function(err){
+    console.error("Error guardando tesoro:", err);
+  });
+}
+
+function escucharTesorosFirebase(){
+  if(!window.FB) { setTimeout(escucharTesorosFirebase, 500); return; }
+  if(firebaseReady) return;
+  firebaseReady = true;
+  var col = window.FB.collection(window.FB.db, 'tesoros');
+  window.FB.onSnapshot(col, function(snap){
+    tesorosEncontrados = {};
+    snap.forEach(function(d){
+      var data = d.data();
+      if(data.dia === CONFIG.HOY){
+        tesorosEncontrados[data.slot] = {
+          autor: data.autor,
+          lugar: data.lugar,
+          codigo: data.codigo
+        };
+      }
+    });
+    actualizarContadorTesoros();
+    if(mapa) dibujarMarcadores();
+  }, function(err){ console.error("Error escuchando tesoros:", err); });
 }
 
 function avisarPorWhatsApp(){
-var otro=(usuario===CONFIG.ESTUARDO)?CONFIG.ANA:CONFIG.ESTUARDO;
-var mensajeBonito='💖✨ ¡Mi amor! ✨💖\n\n¡Encontré el tesoro de hoy! 🎁\n\n📍 Lugar: *'+(lugarActivo?lugarActivo.n:'-')+'*\n🔑 Código: *'+usuario.codigo+'*\n\nTe amo mucho, mi vida 💕\nVen a buscarlo conmigo 🥰\n\n— '+usuario.nombre+' 💗';
-var msg=encodeURIComponent(mensajeBonito);
-window.open('https://wa.me/'+otro.whatsapp+'?text='+msg,'_blank');
+  var otro = (usuario === CONFIG.ESTUARDO) ? CONFIG.ANA : CONFIG.ESTUARDO;
+  var totalEncontrados = Object.keys(tesorosEncontrados).filter(function(k){ return tesorosEncontrados[k]; }).length;
+  var puedeEnviar = totalEncontrados >= 3;
+  if(!puedeEnviar){
+    var faltan = 3 - totalEncontrados;
+    toast('⚠️ Faltan ' + faltan + ' tesoro' + (faltan > 1 ? 's' : '') + ' para enviar el mensaje 💖');
+    if(navigator.vibrate) navigator.vibrate([300,100,300]);
+    return;
+  }
+  var lugares = [];
+  for(var s = 0; s < 3; s++){
+    if(tesorosEncontrados[s]) lugares.push('• ' + tesorosEncontrados[s].lugar);
+  }
+  var mensajeBonito = '💖✨ ¡Mi amor! ✨💖\n\n¡Encontré los 3 tesoros del día! 🎁🎁🎁\n\n📍 Lugares:\n' + lugares.join('\n') + '\n\n🔑 Mi código: *' + usuario.codigo + '*\n\nTe amo mucho, mi vida 💕\n¡Ya completé la misión de hoy! 🥰\n\n— ' + usuario.nombre + ' 💗';
+  var msg = encodeURIComponent(mensajeBonito);
+  window.open('https://wa.me/' + otro.whatsapp + '?text=' + msg, '_blank');
+  lanzarConfeti();
 }
-
-function renderCupones(){
-cuponesCanjeados=get(LS.cupones,{});
-var cont=document.getElementById('cuponesContainer');
-var totalCanjeados=0;
-for(var k in cuponesCanjeados){if(cuponesCanjeados[k])totalCanjeados++;}
-if(totalCanjeados>=100){if(confirm("🎉 ¡Completaste los 100 cupones! 🎉\n\n¿Quieres reiniciar?")){set(LS.cupones,{});cuponesCanjeados={};totalCanjeados=0;toast("✨ ¡Nuevo camino!");}}
-var html='<div style="text-align:center;margin-bottom:20px;"><h3 style="color:#ffd166;font-size:1.2rem;">🎟️ Camino de Cupones</h3><p style="color:#ffb3c9;font-size:.85rem;margin-top:6px;">'+totalCanjeados+' de 100 canjeados</p><div style="margin:12px auto;max-width:340px;height:8px;background:#2a0f1e;border-radius:10px;overflow:hidden;border:1px solid rgba(255,209,102,.3);"><div style="height:100%;width:'+totalCanjeados+'%;background:linear-gradient(90deg,#ff5c8a,#ffd166);transition:.5s;"></div></div></div>';
-html+='<div class="cupones-mapa"><div class="camino-cupones">';
-for(var i=0;i<CUPONES.length;i++){
-var c=CUPONES[i];
-var usado=cuponesCanjeados[i];
-html+='<div class="cupon-camino '+(usado?'completado ':'')+'" data-num="'+(i+1)+'"><div class="titulo">🎁 '+c.t+'</div><div class="desc">'+c.d+'</div>'+(usado?'<div class="fecha">✅ Canjeado el '+usado+'</div>':'<button class="btn-canjear-cupon" onclick="event.stopPropagation();canjearCupon('+i+')">Canjear</button>')+'</div>';
-}
-html+='</div></div>';
-cont.innerHTML=html;
-}
-
-function canjearCupon(i){
-var us=get(LS.cupones,{});
-if(us[i]){toast("Ya canjeado");return;}
-var pass=prompt("Escribe tu palabra secreta para canjear:");
-if(!pass)return;
-var p=pass.trim().toLowerCase();
-if(p!=='mavie'&&p!=='carino'&&p!=='cariño'){toast("Palabra incorrecta ❌");return;}
-us[i]=CONFIG.HOY;
-set(LS.cupones,us);
-var otro=(usuario===CONFIG.ESTUARDO)?CONFIG.ANA:CONFIG.ESTUARDO;
-var codigo='CUPON-'+usuario.nombre.charAt(0)+'-'+(i+1)+'-'+Math.floor(Math.random()*9000+1000);
-var msg=encodeURIComponent('🎟️ ¡Canjee un cupon! 🎟️\nCupon: '+CUPONES[i].t+'\nCodigo: '+codigo+'\n- '+usuario.nombre);
-window.open('https://wa.me/'+otro.whatsapp+'?text='+msg,'_blank');
-toast("¡Cupon canjeado! 🎉");
-renderCupones();
-}
-
-function renderGaleria(){
-var enc=get(LS.tesoros,{});
-var cont=document.getElementById('galeriaContainer');
-var total=0;
-for(var k in enc){if(enc[k]&&enc[k].lugar)total++;}
-if(total===0){cont.innerHTML='<div class="album-vacio"><span class="icono">💫</span>Aun no han encontrado ningun tesoro.</div>';return;}
-var html='<p style="text-align:center;color:#ffd166;font-weight:bold;margin-bottom:16px;">✨ '+total+' tesoro'+(total!==1?'s':'')+' ✨</p>';
-var arr=[];
-for(var k in enc){if(enc[k]&&enc[k].lugar)arr.push({idx:k,data:enc[k]});}
-arr.sort(function(a,b){return (b.data.fecha||'').localeCompare(a.data.fecha||'');});
-arr.forEach(function(item){var d=item.data;html+='<div class="cupon-camino" style="cursor:default;"><div class="titulo">📍 '+d.lugar+'</div><div class="desc">📅 '+(d.fecha||'')+' · '+(d.codigo||'')+'</div><div class="desc" style="font-style:italic;margin-top:8px;">"'+(d.poema||'')+'"</div></div>';});
-cont.innerHTML=html;
-}
-
-function renderPuzzle(){
-var hoy=CONFIG.HOY;
-puzzles=get(LS.puzzle,{});
-var cont=document.getElementById('puzzleContainer');
-var fechaNum=Math.floor(new Date().getTime()/86400000);
-var idxImg=fechaNum%PUZZLE_IMAGENES.length;
-var imgUrl=PUZZLE_IMAGENES[idxImg];
-if(puzzles[hoy]){cont.innerHTML='<div style="text-align:center;padding:40px 20px;"><div style="font-size:4rem;">🎉</div><h3 style="color:#ffd166;margin:14px 0;">¡Ya completaste el puzzle de hoy!</h3><img src="'+imgUrl+'" style="width:min(280px,80vw);border-radius:14px;border:3px solid #ffd166;margin-top:14px;"><p style="color:#ffb3c9;font-size:.85rem;margin-top:14px;">Vuelve mañana para otro 🧩</p></div>';return;}
-cont.innerHTML='<p style="text-align:center;color:#ffd166;font-weight:bold;font-size:1.1rem;">🧩 Arma la imagen de hoy</p><p class="puzzle-info">Toca 2 piezas para intercambiarlas</p><div class="puzzle-board" id="puzzleBoard"></div><p class="puzzle-score" id="puzzleScore">Piezas correctas: 0 / 9</p>';
-var board=document.getElementById('puzzleBoard');
-var piezas=[];
-for(var i=0;i<9;i++)piezas.push(i);
-do{piezas.sort(function(){return Math.random()-0.5;});}while(piezas.every(function(p,i){return p===i;}));
-var seleccionada=null;
-function pintar(){board.innerHTML='';var correctas=0;piezas.forEach(function(posOriginal,posActual){var pieza=document.createElement('div');pieza.className='puzzle-piece';var fila=Math.floor(posOriginal/3);var col=posOriginal%3;pieza.style.backgroundImage='url('+imgUrl+')';pieza.style.backgroundPosition=(-col*50)+'% '+(-fila*50)+'%';pieza.style.backgroundSize='300% 300%';if(posOriginal===posActual){pieza.classList.add('correcta');correctas++;}if(posActual===seleccionada)pieza.classList.add('seleccionada');pieza.onclick=function(){if(seleccionada===null){seleccionada=posActual;pintar();}else if(seleccionada===posActual){seleccionada=null;pintar();}else{var temp=piezas[seleccionada];piezas[seleccionada]=piezas[posActual];piezas[posActual]=temp;seleccionada=null;pintar();verificar();}};board.appendChild(pieza);});var s=document.getElementById('puzzleScore');if(s)s.textContent='Piezas correctas: '+correctas+' / 9';}
-function verificar(){var correcto=piezas.every(function(p,i){return p===i;});if(correcto){puzzles[hoy]=true;set(LS.puzzle,puzzles);lanzarConfeti();setTimeout(function(){alert("🎉 ¡PUZZLE COMPLETADO! 🎉\n\n¡Ganaste un cupon especial!");renderPuzzle();},500);}}
-pintar();
-}
-
-function lanzarConfeti(){var cont=document.createElement('div');cont.className='confeti';document.body.appendChild(cont);var colores=['#ff5c8a','#ffd166','#c9184a','#4CAF50','#2196F3','#9C27B0','#FF9800'];for(var i=0;i<80;i++){var p=document.createElement('div');p.className='confeti-piece';p.style.left=Math.random()*100+'%';p.style.background=colores[Math.floor(Math.random()*colores.length)];p.style.animationDelay=(Math.random()*0.5)+'s';p.style.animationDuration=(2+Math.random()*2)+'s';if(Math.random()>0.5)p.style.borderRadius='50%';cont.appendChild(p);}setTimeout(function(){if(cont.parentNode)cont.remove();},5000);}
-
-function renderSelfie(){
-var selfies=get(LS.selfies,{});
-var hoy=CONFIG.HOY;
-var cont=document.getElementById('selfieContainer');
-var hoyDate=new Date();
-var year=hoyDate.getFullYear();
-var month=hoyDate.getMonth();
-var diasEnMes=new Date(year,month+1,0).getDate();
-var primerDia=new Date(year,month,1).getDay();
-var nombresMes=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-var html='';
-if(!selfies[hoy]){html+='<div style="text-align:center;"><p style="color:#ffd166;font-weight:bold;margin-bottom:12px;">📸 Sonríe, mi amor</p><video id="selfieVideo" class="selfie-video" autoplay playsinline></video><div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap;"><button class="btn" id="btnTomarSelfie" style="margin:0;">📸 Tomar selfie</button><button class="btn" id="btnCambiarCam" style="margin:0;background:#555;">🔄 Cambiar cámara</button></div><canvas id="selfieCanvas" style="display:none;"></canvas></div>';}else{html+='<div style="text-align:center;background:#2a0f1e;padding:14px;border-radius:14px;margin-bottom:14px;"><p style="color:#ffd166;font-weight:bold;margin-bottom:8px;">✅ Ya guardaste la selfie de hoy</p><img src="'+selfies[hoy]+'" style="max-width:200px;border-radius:14px;border:3px solid #ff5c8a;"></div>';}
-html+='<h3 style="color:#ffd166;text-align:center;margin:20px 0 10px;">📅 '+nombresMes[month]+' '+year+'</h3>';
-html+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;font-size:.75rem;color:#ffb3c9;font-weight:bold;margin-bottom:6px;"><div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div></div>';
-html+='<div class="selfie-calendario">';
-for(var i=0;i<primerDia;i++)html+='<div></div>';
-for(var dia=1;dia<=diasEnMes;dia++){
-var fechaStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
-var tieneFoto=selfies[fechaStr];
-var esHoy=(fechaStr===hoy);
-html+='<div class="selfie-dia '+(tieneFoto?'tiene-foto ':'')+(esHoy?'hoy':'')+'" '+(tieneFoto?'style="background-image:url('+selfies[fechaStr]+')" onclick="verSelfie(\''+fechaStr+'\')"':'')+'>'+(!tieneFoto?dia:'')+'</div>';
-}
-html+='</div>';
-cont.innerHTML=html;
-if(!selfies[hoy])setTimeout(iniciarCamara,200);
-}
-
-function iniciarCamara(){
-var video=document.getElementById('selfieVideo');
-if(!video)return;
-if(selfieStream)selfieStream.getTracks().forEach(function(t){t.stop();});
-navigator.mediaDevices.getUserMedia({video:{facingMode:facingMode},audio:false}).then(function(stream){
-selfieStream=stream;
-video.srcObject=stream;
-document.getElementById('btnTomarSelfie').onclick=function(){var canvas=document.getElementById('selfieCanvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;var ctx=canvas.getContext('2d');ctx.drawImage(video,0,0);var dataURL=canvas.toDataURL('image/jpeg',0.7);var selfies=get(LS.selfies,{});selfies[CONFIG.HOY]=dataURL;set(LS.selfies,selfies);toast("📸 Selfie guardada");if(selfieStream){selfieStream.getTracks().forEach(function(t){t.stop();});selfieStream=null;}renderSelfie();};
-document.getElementById('btnCambiarCam').onclick=function(){facingMode=(facingMode==='user')?'environment':'user';iniciarCamara();};
-}).catch(function(err){video.parentNode.innerHTML='<p style="color:#ffb3c9;text-align:center;">⚠️ No se pudo acceder a la camara.</p>';});
-}
-
-function verSelfie(fecha){var selfies=get(LS.selfies,{});if(!selfies[fecha])return;document.getElementById('selfieVerImg').src=selfies[fecha];document.getElementById('selfieVerFecha').textContent='📅 '+fecha;abrirModal('modalSelfieVer');}
-
-function renderFechas(){
-var cont=document.getElementById('fechasContainer');
-var hoy=new Date();
-var hoyDia=hoy.getDate();
-var hoyMes=hoy.getMonth()+1;
-var hoyAño=hoy.getFullYear();
-var html='<p style="text-align:center;color:#ffd166;font-weight:bold;font-size:1.1rem;margin-bottom:8px;">📅 Nuestras Fechas Especiales</p>';
-html+='<p style="text-align:center;color:#ffb3c9;font-size:.8rem;margin-bottom:20px;">Las fechas más importantes de nuestro amor</p>';
-var esEstuardo=(usuario===CONFIG.ESTUARDO);
-var cumpleOtro=esEstuardo?CONFIG.CUMPLE_ANA:CONFIG.CUMPLE_ESTUARDO;
-var textoCumple=esEstuardo?'🎂 Cumpleaños de mi amor (Ana)':'🎂 Cumpleaños de mi amor (Estuardo)';
-var diasCumple=diasHastaFecha(cumpleOtro.dia,cumpleOtro.mes);
-var esCumpleHoy=(hoyDia===cumpleOtro.dia&&hoyMes===cumpleOtro.mes);
-html+='<div class="fecha-card '+(esCumpleHoy?'hoy':'')+'">'+(esCumpleHoy?'<span class="confeti-fecha">🎉</span>':'')+'<span class="icono-grande">🎂</span><h3>'+textoCumple+'</h3><div class="fecha-texto">'+cumpleOtro.dia+' de '+nombreMes(cumpleOtro.mes)+'</div>'+(esCumpleHoy?'<div class="dias-restantes">🎉 ¡HOY ES SU CUMPLEAÑOS! 🎉</div>':'<div class="dias-restantes">Faltan '+diasCumple+' días 💕</div>')+'<div class="detalle">El día que nació mi persona favorita 💗</div></div>';
-var diasAnivPrincipal=diasHastaFecha(CONFIG.ANIVERSARIO.dia,CONFIG.ANIVERSARIO.mes);
-var esAnivPrincipalHoy=(hoyDia===CONFIG.ANIVERSARIO.dia&&hoyMes===CONFIG.ANIVERSARIO.mes);
-var añosJuntos=hoyAño-CONFIG.ANIVERSARIO.año;
-html+='<div class="fecha-card '+(esAnivPrincipalHoy?'hoy':'')+'">'+(esAnivPrincipalHoy?'<span class="confeti-fecha">💕</span>':'')+'<span class="icono-grande">💍</span><h3>💕 Nuestro Aniversario</h3><div class="fecha-texto">14 de diciembre de '+CONFIG.ANIVERSARIO.año+'</div>'+(esAnivPrincipalHoy?'<div class="dias-restantes">🎉 ¡HOY ES NUESTRO ANIVERSARIO! 🎉</div>':'<div class="dias-restantes">Faltan '+diasAnivPrincipal+' días 💕</div>')+'<div class="detalle">'+(añosJuntos>0?'¡Ya llevan '+añosJuntos+' años juntos! 🥰':'Comenzó nuestra historia 💗')+'</div></div>';
-var diasProximo14=diasHastaFecha(14,0);
-var es14Hoy=(hoyDia===14);
-html+='<div class="fecha-card '+(es14Hoy?'hoy':'')+'">'+(es14Hoy?'<span class="confeti-fecha">💖</span>':'')+'<span class="icono-grande">🗓️</span><h3>💖 Aniversario Mensual</h3><div class="fecha-texto">Cada día 14 del mes</div>'+(es14Hoy?'<div class="dias-restantes">🎉 ¡Hoy es nuestro día 14! 🎉</div><div class="detalle">¡Feliz aniversario mensual, mi amor! 💕</div>':'<div class="dias-restantes">Faltan '+diasProximo14+' días</div><div class="detalle">Cada mes celebramos un mes más juntos 💗</div>')+'</div>';
-html+=renderCalendarioMes(hoyAño,hoyMes);
-cont.innerHTML=html;
-}
-
-function nombreMes(m){var meses=['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];return meses[m]||'';}
-function diasHastaFecha(dia,mes){var hoy=new Date();hoy.setHours(0,0,0,0);var esteAño=new Date(hoy.getFullYear(),mes-1,dia);esteAño.setHours(0,0,0,0);if(esteAño.getTime()<hoy.getTime()){esteAño=new Date(hoy.getFullYear()+1,mes-1,dia);}var diff=esteAño.getTime()-hoy.getTime();return Math.ceil(diff/(1000*60*60*24));}
-
-function renderCalendarioMes(año,mes){
-var diasEnMes=new Date(año,mes,0).getDate();
-var primerDia=new Date(año,mes-1,1).getDay();
-var hoy=new Date();
-var hoyDia=hoy.getDate();
-var hoyMes=hoy.getMonth()+1;
-var hoyAño=hoy.getFullYear();
-var html='<div class="calendario-mensual"><h3>📅 '+nombreMes(mes)+' '+año+'</h3><div class="calendario-grid">';
-['D','L','M','M','J','V','S'].forEach(function(d){html+='<div class="calendario-dia-header">'+d+'</div>';});
-for(var i=0;i<primerDia;i++)html+='<div></div>';
-for(var dia=1;dia<=diasEnMes;dia++){
-var clases='calendario-dia';
-var emoji='';
-if(dia===hoyDia&&mes===hoyMes&&año===hoyAño)clases+=' es-hoy';
-if(dia===14){clases+=' es-aniversario';emoji='💕';}
-if(dia===CONFIG.CUMPLE_ESTUARDO.dia&&mes===CONFIG.CUMPLE_ESTUARDO.mes){clases+=' es-cumple-el';emoji='🎂';}
-if(dia===CONFIG.CUMPLE_ANA.dia&&mes===CONFIG.CUMPLE_ANA.mes){clases+=' es-cumple-ella';emoji='🎉';}
-if(dia===CONFIG.ANIVERSARIO.dia&&mes===CONFIG.ANIVERSARIO.mes){clases+=' es-aniversario';emoji='💍';}
-html+='<div class="'+clases+'"><span>'+dia+'</span>'+(emoji?'<span class="emoji-dia">'+emoji+'</span>':'')+'</div>';
-}
-html+='</div></div>';
-return html;
-}
-
-function renderAdivinanzas(){
-var ads=get(LS.adivinanzas,[]);
-var cont=document.getElementById('adivinanzasContainer');
-var html='<div style="background:#2a0f1e;padding:16px;border-radius:14px;margin-bottom:16px;"><h3 style="color:#ffd166;margin-bottom:10px;">✍️ Nueva adivinanza</h3><input type="text" id="advPregunta" placeholder="Tu pregunta" maxlength="200" style="width:100%;padding:12px;border-radius:12px;border:2px solid #ffd166;background:rgba(26,10,20,.85);color:#fff;margin-bottom:10px;"><textarea id="advRespuesta" placeholder="Tu respuesta..." maxlength="500" style="width:100%;padding:12px;border-radius:12px;border:2px solid #ffd166;background:rgba(26,10,20,.85);color:#fff;margin-bottom:10px;min-height:80px;font-family:inherit;"></textarea><button class="btn" id="btnAddAdv" style="margin-top:0;">➕ Agregar</button></div>';
-html+='<p style="color:#ffb3c9;font-size:.8rem;margin-bottom:8px;">💡 Ideas:</p><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">';
-ADIVINANZAS_SUGERIDAS.forEach(function(sug,i){html+='<button class="album-btn sec" onclick="usarSugerencia('+i+')" style="font-size:.7rem;padding:6px 12px;">'+sug+'</button>';});
-html+='</div>';
-html+='<h3 style="color:#ffd166;margin:20px 0 10px;">💭 Adivinanzas ('+ads.length+')</h3>';
-if(ads.length===0){html+='<div class="album-vacio">Aun no hay adivinanzas.</div>';}else{
-ads.slice().reverse().forEach(function(adv,iRev){
-var i=ads.length-1-iRev;
-var esMia=(adv.autor===usuario.nombre);
-html+='<div class="cupon-camino" style="cursor:default;"><div class="fecha">'+(esMia?'👤 Tú':'👤 '+adv.autor)+' · '+adv.fecha+'</div><div class="titulo">❓ '+adv.pregunta+'</div>';
-if(adv.respondida){html+='<div class="desc" style="margin-top:8px;">💬 '+adv.respuesta+'</div>';}
-else if(esMia){html+='<div class="desc" style="margin-top:8px;font-style:italic;">⏳ Esperando respuesta...</div>';}
-else{html+='<div style="margin-top:8px;"><input type="text" id="resp_'+i+'" placeholder="Tu respuesta..." style="width:100%;padding:10px;border-radius:10px;border:2px solid #ffd166;background:rgba(26,10,20,.85);color:#fff;margin-bottom:8px;"><button class="btn" style="margin-top:0;" onclick="responderAdv('+i+')">Responder</button></div>';}
-html+='</div>';
-});
-}
-cont.innerHTML=html;
-document.getElementById('btnAddAdv').onclick=agregarAdivinanza;
-}
-
-function usarSugerencia(i){document.getElementById('advPregunta').value=ADIVINANZAS_SUGERIDAS[i];document.getElementById('advRespuesta').focus();}
-
-function agregarAdivinanza(){
-var preg=document.getElementById('advPregunta').value.trim();
-var resp=document.getElementById('advRespuesta').value.trim();
-if(!preg){toast("Escribe una pregunta");return;}
-if(!resp){toast("Escribe tu respuesta");return;}
-var ads=get(LS.adivinanzas,[]);
-ads.push({pregunta:preg,respuesta:resp,autor:usuario.nombre,fecha:CONFIG.HOY,respondida:false,id:Date.now()});
-set(LS.adivinanzas,ads);
-var otro=(usuario===CONFIG.ESTUARDO)?CONFIG.ANA:CONFIG.ESTUARDO;
-var msg=encodeURIComponent('💭 ¡Te lance una adivinanza! 💭\nPregunta: '+preg+'\n- '+usuario.nombre);
-window.open('https://wa.me/'+otro.whatsapp+'?text='+msg,'_blank');
-toast("✨ Adivinanza creada");
-renderAdivinanzas();
-}
-
-function responderAdv(i){
-var input=document.getElementById('resp_'+i);
-if(!input||!input.value.trim()){toast("Escribe tu respuesta");return;}
-var ads=get(LS.adivinanzas,[]);
-if(!ads[i])return;
-ads[i].respuesta=input.value.trim();
-ads[i].respondida=true;
-ads[i].fechaRespuesta=CONFIG.HOY;
-set(LS.adivinanzas,ads);
-var otro=(usuario===CONFIG.ESTUARDO)?CONFIG.ANA:CONFIG.ESTUARDO;
-var msg=encodeURIComponent('💭 ¡Respondi tu adivinanza! 💭\nPregunta: '+ads[i].pregunta+'\nMi respuesta: '+input.value.trim()+'\n- '+usuario.nombre);
-window.open('https://wa.me/'+otro.whatsapp+'?text='+msg,'_blank');
-toast("✅ Respuesta enviada");
-renderAdivinanzas();
-}/* ============ ÁLBUM COMPARTIDO (Firebase) ============ */
+      /* ============ ÁLBUM COMPARTIDO ============ */
 var albumListener = null;
 var albumFotos = [];
 var albumPreviewData = null;
 
-function comprimirImagen(file, maxW, maxH, calidad) {
-  return new Promise(function(resolve, reject) {
+function comprimirImagen(file, maxW, maxH, calidad){
+  return new Promise(function(resolve, reject){
     var reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function(e){
       var img = new Image();
-      img.onload = function() {
+      img.onload = function(){
         var canvas = document.createElement('canvas');
         var w = img.width, h = img.height;
-        if (w > h) { if (w > maxW) { h = h * maxW / w; w = maxW; } }
-        else { if (h > maxH) { w = w * maxH / h; h = maxH; } }
+        if(w > h){ if(w > maxW){ h = h * maxW / w; w = maxW; } }
+        else { if(h > maxH){ w = w * maxH / h; h = maxH; } }
         canvas.width = w;
         canvas.height = h;
         var ctx = canvas.getContext('2d');
@@ -1067,50 +1088,45 @@ function comprimirImagen(file, maxW, maxH, calidad) {
   });
 }
 
-function renderAlbum() {
+function renderAlbum(){
   var cont = document.getElementById('albumContainer');
-  if (!cont) return;
+  if(!cont) return;
   cont.innerHTML = '<div class="album-toolbar"><button class="album-btn" id="btnSubirFoto">📷 Subir foto</button><button class="album-btn sec" id="btnTomarFotoAlbum">📸 Tomar foto</button></div><div id="albumCount" style="text-align:center;color:#ffb3c9;font-size:.85rem;margin-bottom:10px;">Cargando fotos...</div><div class="album-grid" id="albumGrid"></div>';
-  document.getElementById('btnSubirFoto').onclick = function() { abrirSelectorArchivo(false); };
-  document.getElementById('btnTomarFotoAlbum').onclick = function() { abrirSelectorArchivo(true); };
-  if (!window.FB) {
-    setTimeout(function() { renderAlbum(); }, 500);
-    return;
-  }
-  if (albumListener) albumListener();
+  document.getElementById('btnSubirFoto').onclick = function(){ abrirSelectorArchivo(false); };
+  document.getElementById('btnTomarFotoAlbum').onclick = function(){ abrirSelectorArchivo(true); };
+  if(!window.FB){ setTimeout(function(){ renderAlbum(); }, 500); return; }
+  if(albumListener) albumListener();
   var col = window.FB.collection(window.FB.db, 'album');
   var q = window.FB.query(col, window.FB.orderBy('fecha', 'desc'));
-  albumListener = window.FB.onSnapshot(q, function(snap) {
+  albumListener = window.FB.onSnapshot(q, function(snap){
     albumFotos = [];
-    snap.forEach(function(d) {
-      albumFotos.push({ id: d.id, data: d.data() });
-    });
+    snap.forEach(function(d){ albumFotos.push({ id: d.id, data: d.data() }); });
     pintarAlbum();
-  }, function(err) {
+  }, function(err){
     console.error("Error álbum:", err);
-    document.getElementById('albumCount').innerHTML = '<span style="color:#ff5c5c;">⚠️ Error al cargar. Revisa las reglas de Firestore.</span>';
+    document.getElementById('albumCount').innerHTML = '<span style="color:#ff5c5c;">⚠️ Error al cargar.</span>';
   });
 }
 
-function pintarAlbum() {
+function pintarAlbum(){
   var grid = document.getElementById('albumGrid');
   var cnt = document.getElementById('albumCount');
-  if (!grid) return;
-  if (albumFotos.length === 0) {
+  if(!grid) return;
+  if(albumFotos.length === 0){
     cnt.textContent = '';
     grid.innerHTML = '<div class="album-vacio" style="grid-column:1/-1;"><span class="icono">📷</span>Aún no hay fotos.<br>¡Sube la primera!</div>';
     return;
   }
   cnt.innerHTML = '✨ <strong style="color:#ffd166;">' + albumFotos.length + '</strong> foto' + (albumFotos.length !== 1 ? 's' : '') + ' en el álbum ✨';
   var html = '';
-  albumFotos.forEach(function(foto) {
+  albumFotos.forEach(function(foto){
     var d = foto.data;
     var esMia = usuario && (d.autorNombre === usuario.nombre);
     var fechaCorta = d.fecha ? new Date(d.fecha.seconds * 1000).toLocaleDateString('es-GT') : '';
     html += '<div class="album-card" onclick="verFotoAlbum(\'' + foto.id + '\')">';
     html += '<img src="' + d.imagen + '" loading="lazy">';
     html += '<div class="info"><div class="autor">' + (d.autorNombre || '?') + '</div><div class="fecha">' + fechaCorta + '</div></div>';
-    if (esMia) {
+    if(esMia){
       html += '<button class="btn-borrar mia" onclick="event.stopPropagation();borrarFotoAlbum(\'' + foto.id + '\')">🗑️</button>';
     }
     html += '</div>';
@@ -1118,20 +1134,20 @@ function pintarAlbum() {
   grid.innerHTML = html;
 }
 
-function abrirSelectorArchivo(usarCamara) {
+function abrirSelectorArchivo(usarCamara){
   var input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
-  if (usarCamara) input.capture = 'environment';
-  input.onchange = function(e) {
+  if(usarCamara) input.capture = 'environment';
+  input.onchange = function(e){
     var file = e.target.files[0];
-    if (!file) return;
-    comprimirImagen(file, 1000, 1000, 0.6).then(function(dataUrl) {
+    if(!file) return;
+    comprimirImagen(file, 900, 900, 0.55).then(function(dataUrl){
       albumPreviewData = dataUrl;
       document.getElementById('albumPreview').src = dataUrl;
       document.getElementById('albumMensaje').value = '';
       document.getElementById('albumSubirModal').classList.add('activo');
-    }).catch(function(err) {
+    }).catch(function(err){
       console.error(err);
       toast("❌ No se pudo procesar la imagen");
     });
@@ -1139,14 +1155,14 @@ function abrirSelectorArchivo(usarCamara) {
   input.click();
 }
 
-function cerrarAlbumSubir() {
+function cerrarAlbumSubir(){
   document.getElementById('albumSubirModal').classList.remove('activo');
   albumPreviewData = null;
 }
 
-function subirFotoAlbum() {
-  if (!albumPreviewData) { toast("No hay imagen"); return; }
-  if (!window.FB) { toast("Firebase no listo"); return; }
+function subirFotoAlbum(){
+  if(!albumPreviewData){ toast("No hay imagen"); return; }
+  if(!window.FB){ toast("Firebase no listo"); return; }
   var msg = document.getElementById('albumMensaje').value.trim();
   var btn = document.getElementById('btnAlbumSubir');
   btn.disabled = true;
@@ -1158,13 +1174,13 @@ function subirFotoAlbum() {
     autorCodigo: usuario.codigo,
     mensaje: msg,
     fecha: window.FB.serverTimestamp()
-  }).then(function() {
+  }).then(function(){
     toast("💖 ¡Foto subida!");
     cerrarAlbumSubir();
     btn.disabled = false;
     btn.textContent = '💖 Subir al álbum';
     lanzarConfeti();
-  }).catch(function(err) {
+  }).catch(function(err){
     console.error(err);
     toast("❌ Error al subir");
     btn.disabled = false;
@@ -1172,62 +1188,707 @@ function subirFotoAlbum() {
   });
 }
 
-function verFotoAlbum(id) {
-  var foto = albumFotos.find(function(f) { return f.id === id; });
-  if (!foto) return;
+function verFotoAlbum(id){
+  var foto = albumFotos.find(function(f){ return f.id === id; });
+  if(!foto) return;
   var d = foto.data;
   document.getElementById('albumViewerImg').src = d.imagen;
   document.getElementById('albumViewerAutor').textContent = '💕 Subida por ' + (d.autorNombre || '?');
   var fecha = d.fecha ? new Date(d.fecha.seconds * 1000).toLocaleString('es-GT') : '';
   document.getElementById('albumViewerFecha').textContent = fecha;
   var msgEl = document.getElementById('albumViewerMsg');
-  if (d.mensaje) { msgEl.textContent = '"' + d.mensaje + '"'; msgEl.style.display = 'block'; }
+  if(d.mensaje){ msgEl.textContent = '"' + d.mensaje + '"'; msgEl.style.display = 'block'; }
   else { msgEl.style.display = 'none'; }
+  // Botón descargar
+  document.getElementById('btnDescargarAlbum').onclick = function(){
+    var link = document.createElement('a');
+    link.download = 'amor-foto-' + Date.now() + '.jpg';
+    link.href = d.imagen;
+    link.click();
+    toast("⬇️ Descargando foto...");
+  };
   document.getElementById('albumViewer').classList.add('activo');
 }
 
-function cerrarAlbumViewer() {
+function cerrarAlbumViewer(){
   document.getElementById('albumViewer').classList.remove('activo');
 }
 
-function borrarFotoAlbum(id) {
-  if (!confirm("¿Borrar esta foto? No se puede deshacer.")) return;
-  if (!window.FB) return;
+function borrarFotoAlbum(id){
+  if(!confirm("¿Borrar esta foto? No se puede deshacer.")) return;
+  if(!window.FB) return;
   var docRef = window.FB.doc(window.FB.db, 'album', id);
-  window.FB.deleteDoc(docRef).then(function() {
+  window.FB.deleteDoc(docRef).then(function(){
     toast("🗑️ Foto borrada");
     cerrarAlbumViewer();
-  }).catch(function(err) {
+  }).catch(function(err){
     console.error(err);
     toast("❌ Error al borrar");
   });
 }
+      /* ============ SELFIES COMPARTIDAS ============ */
+var selfiesListener = null;
+var selfiesTodas = [];
+var selfiesDelDia = [];
+var selfieMensajeActual = '';
+
+function renderSelfieCompartida(){
+  var cont = document.getElementById('selfieContainer');
+  if(!cont) return;
+  cont.innerHTML = '<div style="text-align:center;margin-bottom:14px;"><div class="selfie-contador">Llevas <strong id="selfieHoyCount">0</strong>/3 hoy</div></div><div class="album-toolbar"><button class="album-btn" id="btnNuevaSelfie">📸 Tomar selfie</button></div><div id="selfieMensajeDia" style="text-align:center;color:#ffb3c9;font-size:.85rem;margin:12px 0;"></div><h3 style="color:#ffd166;text-align:center;margin:20px 0 10px;font-size:1rem;">📅 Calendario compartido</h3><div id="selfieCalendarioWrap"></div>';
+  document.getElementById('btnNuevaSelfie').onclick = abrirModalSelfieCam;
+  if(!window.FB){ setTimeout(function(){ renderSelfieCompartida(); }, 500); return; }
+  if(selfiesListener) selfiesListener();
+  var col = window.FB.collection(window.FB.db, 'selfies');
+  var q = window.FB.query(col, window.FB.orderBy('fecha', 'desc'));
+  selfiesListener = window.FB.onSnapshot(q, function(snap){
+    selfiesTodas = [];
+    snap.forEach(function(d){ selfiesTodas.push({ id: d.id, data: d.data() }); });
+    pintarSelfies();
+  }, function(err){
+    console.error("Error selfies:", err);
+  });
+}
+
+function pintarSelfies(){
+  var hoy = CONFIG.HOY;
+  selfiesDelDia = selfiesTodas.filter(function(s){ return s.data.dia === hoy; });
+  var miosHoy = selfiesDelDia.filter(function(s){ return usuario && s.data.autorNombre === usuario.nombre; }).length;
+  var countEl = document.getElementById('selfieHoyCount');
+  if(countEl) countEl.textContent = miosHoy;
+  var msgDia = document.getElementById('selfieMensajeDia');
+  if(msgDia){
+    if(selfiesDelDia.length === 0){
+      msgDia.innerHTML = '📸 Aún no hay selfies hoy.<br>¡Sé el primero en subir una!';
+    } else {
+      msgDia.innerHTML = '💕 Hay <strong style="color:#ffd166;">' + selfiesDelDia.length + '</strong> selfie' + (selfiesDelDia.length !== 1 ? 's' : '') + ' hoy';
+    }
+  }
+  // Si ya llegó a 3, deshabilitar el botón
+  var btn = document.getElementById('btnNuevaSelfie');
+  if(btn){
+    if(miosHoy >= CONFIG.MAX_SELFIES_DIA){
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.textContent = '✅ Ya subiste 3 hoy';
+    } else {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.textContent = '📸 Tomar selfie (' + miosHoy + '/3)';
+    }
+  }
+  pintarCalendarioSelfies();
+}
+
+function pintarCalendarioSelfies(){
+  var wrap = document.getElementById('selfieCalendarioWrap');
+  if(!wrap) return;
+  var hoyDate = new Date();
+  var year = hoyDate.getFullYear();
+  var month = hoyDate.getMonth();
+  var diasEnMes = new Date(year, month + 1, 0).getDate();
+  var primerDia = new Date(year, month, 1).getDay();
+  var nombresMes = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var html = '<div style="text-align:center;color:#ffd166;font-weight:bold;margin-bottom:10px;">📅 ' + nombresMes[month] + ' ' + year + '</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;font-size:.7rem;color:#ffb3c9;font-weight:bold;margin-bottom:6px;"><div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div></div>';
+  html += '<div class="selfie-calendario-compartido">';
+  for(var i = 0; i < primerDia; i++) html += '<div></div>';
+  for(var dia = 1; dia <= diasEnMes; dia++){
+    var fechaStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(dia).padStart(2, '0');
+    var fotosDia = selfiesTodas.filter(function(s){ return s.data.dia === fechaStr; });
+    var esHoy = (fechaStr === CONFIG.HOY);
+    var clases = 'selfie-dia-comp';
+    if(fotosDia.length > 0) clases += ' con-fotos';
+    if(esHoy) clases += ' es-hoy';
+    var estilo = '';
+    if(fotosDia.length > 0){
+      estilo = 'style="background-image:url(' + fotosDia[0].data.imagen + ')"';
+    }
+    var onclick = fotosDia.length > 0 ? 'onclick="verSelfieDelDia(\'' + fechaStr + '\')"' : '';
+    html += '<div class="' + clases + '" ' + estilo + ' ' + onclick + '>';
+    html += '<span class="num-dia">' + dia + '</span>';
+    if(fotosDia.length > 0){
+      html += '<span class="badge-fotos">' + fotosDia.length + '</span>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+function verSelfieDelDia(fecha){
+  var fotos = selfiesTodas.filter(function(s){ return s.data.dia === fecha; });
+  if(fotos.length === 0) return;
+  var titulo = document.getElementById('selfieDiaTitulo');
+  titulo.textContent = '📸 ' + fecha + ' — ' + fotos.length + ' selfie' + (fotos.length !== 1 ? 's' : '');
+  var cont = document.getElementById('selfieDiaFotos');
+  var html = '';
+  fotos.forEach(function(f){
+    var d = f.data;
+    var hora = d.fecha ? new Date(d.fecha.seconds * 1000).toLocaleTimeString('es-GT', {hour: '2-digit', minute: '2-digit'}) : '';
+    html += '<div class="foto-item">';
+    html += '<img src="' + d.imagen + '">';
+    html += '<button class="btn-descargar" onclick="event.stopPropagation();descargarSelfie(\'' + f.id + '\')">⬇️ Guardar</button>';
+    html += '<div class="foto-info"><div class="foto-autor">💕 ' + (d.autorNombre || '?') + '</div><div class="foto-hora">' + hora + '</div>';
+    if(d.mensaje) html += '<div style="color:#ffd166;font-size:.75rem;font-style:italic;margin-top:4px;">"' + d.mensaje + '"</div>';
+    html += '</div></div>';
+  });
+  cont.innerHTML = html;
+  document.getElementById('selfieDiaViewer').classList.add('activo');
+}
+
+function cerrarSelfieDiaViewer(){
+  document.getElementById('selfieDiaViewer').classList.remove('activo');
+}
+
+function descargarSelfie(id){
+  var f = selfiesTodas.find(function(s){ return s.id === id; });
+  if(!f) return;
+  var link = document.createElement('a');
+  link.download = 'selfie-' + f.data.dia + '-' + Date.now() + '.jpg';
+  link.href = f.data.imagen;
+  link.click();
+  toast("⬇️ Descargando...");
+}
+
+/* ============ MODAL DE CÁMARA PARA SELFIE ============ */
+function abrirModalSelfieCam(){
+  document.getElementById('selfieMensaje').value = '';
+  abrirModal('modalSelfieCam');
+  setTimeout(iniciarCamaraSelfie, 300);
+}
+
+function cerrarModalSelfieCam(){
+  if(selfieStream){
+    selfieStream.getTracks().forEach(function(t){ t.stop(); });
+    selfieStream = null;
+  }
+  cerrarModal('modalSelfieCam');
+}
+
+function iniciarCamaraSelfie(){
+  var video = document.getElementById('selfieVideo');
+  if(!video) return;
+  if(selfieStream) selfieStream.getTracks().forEach(function(t){ t.stop(); });
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode }, audio: false })
+    .then(function(stream){
+      selfieStream = stream;
+      video.srcObject = stream;
+      document.getElementById('btnTomarSelfie').onclick = capturarYSubirSelfie;
+      document.getElementById('btnCambiarCam').onclick = function(){
+        facingMode = (facingMode === 'user') ? 'environment' : 'user';
+        iniciarCamaraSelfie();
+      };
+    })
+    .catch(function(err){
+      console.error('Error de cámara:', err);
+      video.parentNode.innerHTML = '<p style="color:#ffb3c9;text-align:center;">⚠️ No se pudo acceder a la cámara.<br><small>' + err.message + '</small></p>';
+    });
+}
+
+function capturarYSubirSelfie(){
+  var video = document.getElementById('selfieVideo');
+  var canvas = document.getElementById('selfieCanvas');
+  if(!video || !canvas) return;
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  // Comprimir a 300 KB aprox (más pequeño porque son varias por día)
+  var dataURL = canvas.toDataURL('image/jpeg', 0.5);
+  // Verificar tamaño
+  var sizeKB = Math.round((dataURL.length * 3) / 4 / 1024);
+  console.log("Tamaño selfie:", sizeKB, "KB");
+  var mensaje = document.getElementById('selfieMensaje').value.trim();
+  subirSelfieFirebase(dataURL, mensaje);
+}
+
+function subirSelfieFirebase(imagen, mensaje){
+  if(!window.FB){ toast("Firebase no listo"); return; }
+  var btn = document.getElementById('btnTomarSelfie');
+  btn.disabled = true;
+  btn.textContent = '⏳ Subiendo...';
+  var col = window.FB.collection(window.FB.db, 'selfies');
+  window.FB.addDoc(col, {
+    imagen: imagen,
+    dia: CONFIG.HOY,
+    autorNombre: usuario.nombre,
+    autorCodigo: usuario.codigo,
+    mensaje: mensaje,
+    fecha: window.FB.serverTimestamp()
+  }).then(function(){
+    toast("💖 ¡Selfie subida!");
+    if(selfieStream){ selfieStream.getTracks().forEach(function(t){ t.stop(); }); selfieStream = null; }
+    cerrarModal('modalSelfieCam');
+    btn.disabled = false;
+    btn.textContent = '📸 Capturar';
+    lanzarConfeti();
+  }).catch(function(err){
+    console.error(err);
+    toast("❌ Error al subir");
+    btn.disabled = false;
+    btn.textContent = '📸 Capturar';
+  });
+}
+      /* ============ CUPONES COMPARTIDOS ============ */
+var cuponesListener = null;
+var cuponesFirebase = {};
+
+function renderCuponesCompartidos(){
+  var cont = document.getElementById('cuponesContainer');
+  if(!cont) return;
+  cont.innerHTML = '<div style="text-align:center;color:#ffb3c9;">Cargando cupones...</div>';
+  if(!window.FB){ setTimeout(renderCuponesCompartidos, 500); return; }
+  if(cuponesListener) cuponesListener();
+  var col = window.FB.collection(window.FB.db, 'cupones');
+  cuponesListener = window.FB.onSnapshot(col, function(snap){
+    cuponesFirebase = {};
+    snap.forEach(function(d){
+      cuponesFirebase[d.id] = d.data();
+    });
+    pintarCuponesCompartidos();
+  }, function(err){
+    console.error("Error cupones:", err);
+  });
+}
+
+function pintarCuponesCompartidos(){
+  var cont = document.getElementById('cuponesContainer');
+  if(!cont) return;
+  var total = 0;
+  for(var k in cuponesFirebase){ if(cuponesFirebase[k]) total++; }
+  if(total >= 100){
+    if(confirm("🎉 ¡Completaron los 100 cupones juntos! 🎉\n\n¿Quieren reiniciar?")){
+      if(window.FB){
+        for(var kk in cuponesFirebase){
+          window.FB.deleteDoc(window.FB.doc(window.FB.db, 'cupones', kk));
+        }
+      }
+      toast("✨ ¡Nuevo camino!");
+    }
+  }
+  var html = '<div style="text-align:center;margin-bottom:20px;"><h3 style="color:#ffd166;font-size:1.2rem;">🎟️ Camino Compartido</h3><p style="color:#ffb3c9;font-size:.85rem;margin-top:6px;">' + total + ' de 100 canjeados entre los 2</p><div style="margin:12px auto;max-width:340px;height:8px;background:#2a0f1e;border-radius:10px;overflow:hidden;border:1px solid rgba(255,209,102,.3);"><div style="height:100%;width:' + total + '%;background:linear-gradient(90deg,#ff5c8a,#ffd166);transition:.5s;"></div></div></div>';
+  html += '<div class="cupones-mapa"><div class="camino-cupones">';
+  for(var i = 0; i < CUPONES.length; i++){
+    var c = CUPONES[i];
+    var data = cuponesFirebase['cupon_' + i];
+    var usado = !!data;
+    html += '<div class="cupon-camino ' + (usado ? 'completado ' : '') + '" data-num="' + (i+1) + '">';
+    html += '<div class="titulo">🎁 ' + c.t + '</div>';
+    html += '<div class="desc">' + c.d + '</div>';
+    if(usado){
+      html += '<div class="fecha">✅ Canjeado por ' + data.autor + ' el ' + data.dia + '</div>';
+    } else {
+      html += '<button class="btn-canjear-cupon" onclick="event.stopPropagation();canjearCuponCompartido(' + i + ')">Canjear</button>';
+    }
+    html += '</div>';
+  }
+  html += '</div></div>';
+  cont.innerHTML = html;
+}
+
+function canjearCuponCompartido(i){
+  if(cuponesFirebase['cupon_' + i]){ toast("Ya fue canjeado"); return; }
+  if(!window.FB || !window.FB.setDoc){ toast("Firebase no listo"); return; }
+  var pass = prompt("Escribe tu palabra secreta para canjear:");
+  if(!pass) return;
+  var p = pass.trim().toLowerCase();
+  if(p !== 'mavie' && p !== 'carino' && p !== 'cariño'){ toast("Palabra incorrecta ❌"); return; }
+  var docRef = window.FB.doc(window.FB.db, 'cupones', 'cupon_' + i);
+  window.FB.setDoc(docRef, {
+    index: i,
+    titulo: CUPONES[i].t,
+    autor: usuario.nombre,
+    autorCodigo: usuario.codigo,
+    dia: CONFIG.HOY
+  }).then(function(){
+    toast("¡Cupón canjeado! 🎉");
+    var otro = (usuario === CONFIG.ESTUARDO) ? CONFIG.ANA : CONFIG.ESTUARDO;
+    var msg = encodeURIComponent('🎟️ ¡Canjee un cupon! 🎟️\nCupon: ' + CUPONES[i].t + '\n- ' + usuario.nombre);
+    window.open('https://wa.me/' + otro.whatsapp + '?text=' + msg, '_blank');
+    lanzarConfeti();
+  }).catch(function(err){
+    console.error(err);
+    toast("❌ Error al canjear");
+  });
+}
+
+/* ============ GALERÍA COMPARTIDA ============ */
+var galeriaListener = null;
+
+function renderGaleriaCompartida(){
+  var cont = document.getElementById('galeriaContainer');
+  if(!cont) return;
+  cont.innerHTML = '<div style="text-align:center;color:#ffb3c9;">Cargando tesoros...</div>';
+  if(!window.FB){ setTimeout(renderGaleriaCompartida, 500); return; }
+  if(galeriaListener) galeriaListener();
+  var col = window.FB.collection(window.FB.db, 'tesoros');
+  var q = window.FB.query(col, window.FB.orderBy('dia', 'desc'));
+  galeriaListener = window.FB.onSnapshot(q, function(snap){
+    var tesoros = [];
+    snap.forEach(function(d){
+      var data = d.data();
+      if(data.dia) tesoros.push(data);
+    });
+    pintarGaleriaCompartida(tesoros);
+  }, function(err){
+    console.error(err);
+  });
+}
+
+function pintarGaleriaCompartida(tesoros){
+  var cont = document.getElementById('galeriaContainer');
+  if(tesoros.length === 0){
+    cont.innerHTML = '<div class="album-vacio"><span class="icono">💫</span>Aún no hay tesoros encontrados.</div>';
+    return;
+  }
+  var html = '<p style="text-align:center;color:#ffd166;font-weight:bold;margin-bottom:16px;">✨ ' + tesoros.length + ' tesoro' + (tesoros.length !== 1 ? 's' : '') + ' encontrado' + (tesoros.length !== 1 ? 's' : '') + ' ✨</p>';
+  var porDia = {};
+  tesoros.forEach(function(t){
+    if(!porDia[t.dia]) porDia[t.dia] = [];
+    porDia[t.dia].push(t);
+  });
+  var dias = Object.keys(porDia).sort().reverse();
+  dias.forEach(function(dia){
+    var lista = porDia[dia];
+    html += '<div style="margin-bottom:20px;padding:14px;background:rgba(74,15,46,.5);border-radius:14px;border:1px solid rgba(255,209,102,.3);">';
+    html += '<div style="color:#ffd166;font-weight:bold;margin-bottom:10px;font-size:.95rem;">📅 ' + dia + ' (' + lista.length + '/3)</div>';
+    lista.forEach(function(t){
+      html += '<div style="padding:10px;background:rgba(26,10,20,.6);border-radius:10px;margin-bottom:8px;border-left:4px solid ' + (t.autor === usuario.nombre ? '#ff5c8a' : '#4CAF50') + ';">';
+      html += '<div style="color:#ffe3ee;font-size:.85rem;"><strong>' + t.autor + '</strong> encontró <strong style="color:#ffd166;">' + t.lugar + '</strong></div>';
+      html += '<div style="color:#ffb3c9;font-size:.7rem;margin-top:4px;">Slot ' + (t.slot + 1) + ' · Código: ' + t.codigo + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  cont.innerHTML = html;
+}
+
+/* ============ CITAS (dentro de Fechas) ============ */
+var citasListener = null;
+var citasFirebase = [];
+
+function renderFechasConCitas(){
+  var cont = document.getElementById('fechasContainer');
+  if(!cont) return;
+  cont.innerHTML = '<div style="text-align:center;color:#ffb3c9;">Cargando...</div>';
+  if(!window.FB){ setTimeout(renderFechasConCitas, 500); return; }
+  if(citasListener) citasListener();
+  var col = window.FB.collection(window.FB.db, 'citas');
+  var q = window.FB.query(col, window.FB.orderBy('fecha', 'asc'));
+  citasListener = window.FB.onSnapshot(q, function(snap){
+    citasFirebase = [];
+    snap.forEach(function(d){ citasFirebase.push({ id: d.id, data: d.data() }); });
+    pintarFechasConCitas();
+  }, function(err){
+    console.error(err);
+  });
+}
+
+function pintarFechasConCitas(){
+  var cont = document.getElementById('fechasContainer');
+  var hoy = new Date();
+  var hoyDia = hoy.getDate();
+  var hoyMes = hoy.getMonth() + 1;
+  var hoyAño = hoy.getFullYear();
+  var html = '<p style="text-align:center;color:#ffd166;font-weight:bold;font-size:1.1rem;margin-bottom:8px;">📅 Fechas Especiales</p>';
+  html += '<p style="text-align:center;color:#ffb3c9;font-size:.8rem;margin-bottom:20px;">Nuestras fechas y citas</p>';
+  var esEstuardo = (usuario === CONFIG.ESTUARDO);
+  var cumpleOtro = esEstuardo ? CONFIG.CUMPLE_ANA : CONFIG.CUMPLE_ESTUARDO;
+  var textoCumple = esEstuardo ? '🎂 Cumpleaños de mi amor (Ana)' : '🎂 Cumpleaños de mi amor (Estuardo)';
+  var diasCumple = diasHastaFecha(cumpleOtro.dia, cumpleOtro.mes);
+  var esCumpleHoy = (hoyDia === cumpleOtro.dia && hoyMes === cumpleOtro.mes);
+  html += '<div class="fecha-card ' + (esCumpleHoy ? 'hoy' : '') + '">' + (esCumpleHoy ? '<span class="confeti-fecha">🎉</span>' : '') + '<span class="icono-grande">🎂</span><h3>' + textoCumple + '</h3><div class="fecha-texto">' + cumpleOtro.dia + ' de ' + nombreMes(cumpleOtro.mes) + '</div>' + (esCumpleHoy ? '<div class="dias-restantes">🎉 ¡HOY ES SU CUMPLEAÑOS! 🎉</div>' : '<div class="dias-restantes">Faltan ' + diasCumple + ' días 💕</div>') + '</div>';
+  var diasAniv = diasHastaFecha(CONFIG.ANIVERSARIO.dia, CONFIG.ANIVERSARIO.mes);
+  var esAnivHoy = (hoyDia === CONFIG.ANIVERSARIO.dia && hoyMes === CONFIG.ANIVERSARIO.mes);
+  var añosJuntos = hoyAño - CONFIG.ANIVERSARIO.año;
+  html += '<div class="fecha-card ' + (esAnivHoy ? 'hoy' : '') + '">' + (esAnivHoy ? '<span class="confeti-fecha">💕</span>' : '') + '<span class="icono-grande">💍</span><h3>💕 Nuestro Aniversario</h3><div class="fecha-texto">14 de diciembre de ' + CONFIG.ANIVERSARIO.año + '</div>' + (esAnivHoy ? '<div class="dias-restantes">🎉 ¡HOY ES NUESTRO ANIVERSARIO! 🎉</div>' : '<div class="dias-restantes">Faltan ' + diasAniv + ' días 💕</div>') + '<div class="detalle">' + (añosJuntos > 0 ? '¡Ya llevan ' + añosJuntos + ' años juntos! 🥰' : 'Comenzó nuestra historia 💗') + '</div></div>';
+  // SECCIÓN DE CITAS
+  html += '<div class="fecha-card" style="background:linear-gradient(135deg,#3d0a24,#5a1030);"><span class="icono-grande">💌</span><h3>💌 Nuestras Citas</h3><div class="detalle" style="margin-bottom:12px;">Agendemos cosas juntos</div><button class="album-btn" id="btnNuevaCita" style="width:100%;">➕ Nueva cita</button></div>';
+  if(citasFirebase.length === 0){
+    html += '<div class="cita-vacia">💫 No hay citas agendadas aún.<br><small>Agrega la primera ✨</small></div>';
+  } else {
+    citasFirebase.forEach(function(c){
+      var d = c.data;
+      var fecha = d.fecha || '';
+      var esMia = usuario && d.autor === usuario.nombre;
+      html += '<div class="cita-card">';
+      if(esMia){
+        html += '<button class="btn-borrar-cita" onclick="borrarCita(\'' + c.id + '\')">🗑️</button>';
+      }
+      html += '<div class="cita-fecha">📅 ' + fecha + (d.hora ? ' · ' + d.hora : '') + '</div>';
+      html += '<div class="cita-titulo">' + (d.titulo || 'Sin título') + '</div>';
+      if(d.descripcion) html += '<div class="cita-desc">' + d.descripcion + '</div>';
+      html += '<div class="cita-autor">💕 Agendada por ' + (d.autor || '?') + '</div>';
+      html += '</div>';
+    });
+  }
+  html += renderCalendarioConCitas(hoyAño, hoyMes);
+  cont.innerHTML = html;
+  document.getElementById('btnNuevaCita').onclick = abrirModalNuevaCita;
+}
+
+function renderCalendarioConCitas(año, mes){
+  var diasEnMes = new Date(año, mes, 0).getDate();
+  var primerDia = new Date(año, mes - 1, 1).getDay();
+  var hoy = new Date();
+  var hoyDia = hoy.getDate();
+  var hoyMes = hoy.getMonth() + 1;
+  var hoyAño = hoy.getFullYear();
+  var html = '<div class="calendario-mensual"><h3>📅 ' + nombreMes(mes) + ' ' + año + '</h3><div class="calendario-grid">';
+  ['D','L','M','M','J','V','S'].forEach(function(d){ html += '<div class="calendario-dia-header">' + d + '</div>'; });
+  for(var i = 0; i < primerDia; i++) html += '<div></div>';
+  for(var dia = 1; dia <= diasEnMes; dia++){
+    var fechaStr = año + '-' + String(mes).padStart(2,'0') + '-' + String(dia).padStart(2,'0');
+    var clases = 'calendario-dia';
+    var emoji = '';
+    if(dia === hoyDia && mes === hoyMes && año === hoyAño) clases += ' es-hoy';
+    if(dia === 14){ clases += ' es-aniversario'; emoji = '💕'; }
+    if(dia === CONFIG.CUMPLE_ESTUARDO.dia && mes === CONFIG.CUMPLE_ESTUARDO.mes){ clases += ' es-cumple-el'; emoji = '🎂'; }
+    if(dia === CONFIG.CUMPLE_ANA.dia && mes === CONFIG.CUMPLE_ANA.mes){ clases += ' es-cumple-ella'; emoji = '🎉'; }
+    var tieneCita = citasFirebase.some(function(c){ return c.data.fecha === fechaStr; });
+    if(tieneCita && !emoji){ clases += ' es-cita'; emoji = '💌'; }
+    html += '<div class="' + clases + '"><span>' + dia + '</span>' + (emoji ? '<span class="emoji-dia">' + emoji + '</span>' : '') + '</div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function abrirModalNuevaCita(){
+  var fecha = prompt("Fecha (YYYY-MM-DD):\nEjemplo: 2026-12-25");
+  if(!fecha) return;
+  var hora = prompt("Hora (opcional, ej: 19:00):\nDeja vacío si no aplica") || '';
+  var titulo = prompt("Título de la cita:\nEjemplo: Cena romántica");
+  if(!titulo) return;
+  var descripcion = prompt("Descripción (opcional):") || '';
+  if(!window.FB) return;
+  var col = window.FB.collection(window.FB.db, 'citas');
+  window.FB.addDoc(col, {
+    fecha: fecha,
+    hora: hora,
+    titulo: titulo,
+    descripcion: descripcion,
+    autor: usuario.nombre,
+    autorCodigo: usuario.codigo,
+    creada: window.FB.serverTimestamp()
+  }).then(function(){
+    toast("💌 ¡Cita agendada!");
+    lanzarConfeti();
+  }).catch(function(err){
+    console.error(err);
+    toast("❌ Error al agendar");
+  });
+}
+
+function borrarCita(id){
+  if(!confirm("¿Borrar esta cita?")) return;
+  if(!window.FB) return;
+  window.FB.deleteDoc(window.FB.doc(window.FB.db, 'citas', id)).then(function(){
+    toast("🗑️ Cita borrada");
+  }).catch(function(err){
+    console.error(err);
+    toast("❌ Error");
+  });
+}
+      /* ============ PUZZLE ============ */
+var puzzles = {};
+
+function renderPuzzle(){
+  var hoy = CONFIG.HOY;
+  puzzles = get(LS_PUZZLE, {});
+  var cont = document.getElementById('puzzleContainer');
+  var fechaNum = Math.floor(new Date().getTime() / 86400000);
+  var idxImg = fechaNum % PUZZLE_IMAGENES.length;
+  var imgUrl = PUZZLE_IMAGENES[idxImg];
+  if(puzzles[hoy]){
+    cont.innerHTML = '<div style="text-align:center;padding:40px 20px;"><div style="font-size:4rem;">🎉</div><h3 style="color:#ffd166;margin:14px 0;">¡Ya completaste el puzzle de hoy!</h3><img src="' + imgUrl + '" style="width:min(280px,80vw);border-radius:14px;border:3px solid #ffd166;margin-top:14px;"><p style="color:#ffb3c9;font-size:.85rem;margin-top:14px;">Vuelve mañana para otro 🧩</p></div>';
+    return;
+  }
+  cont.innerHTML = '<p style="text-align:center;color:#ffd166;font-weight:bold;font-size:1.1rem;">🧩 Arma la imagen de hoy</p><p class="puzzle-info">Toca 2 piezas para intercambiarlas</p><div class="puzzle-board" id="puzzleBoard"></div><p class="puzzle-score" id="puzzleScore">Piezas correctas: 0 / 9</p>';
+  var board = document.getElementById('puzzleBoard');
+  var piezas = [];
+  for(var i = 0; i < 9; i++) piezas.push(i);
+  do { piezas.sort(function(){ return Math.random() - 0.5; }); } while(piezas.every(function(p, i){ return p === i; }));
+  var seleccionada = null;
+  function pintar(){
+    board.innerHTML = '';
+    var correctas = 0;
+    piezas.forEach(function(posOriginal, posActual){
+      var pieza = document.createElement('div');
+      pieza.className = 'puzzle-piece';
+      var fila = Math.floor(posOriginal / 3);
+      var col = posOriginal % 3;
+      pieza.style.backgroundImage = 'url(' + imgUrl + ')';
+      pieza.style.backgroundPosition = (-col * 50) + '% ' + (-fila * 50) + '%';
+      pieza.style.backgroundSize = '300% 300%';
+      if(posOriginal === posActual){ pieza.classList.add('correcta'); correctas++; }
+      if(posActual === seleccionada) pieza.classList.add('seleccionada');
+      pieza.onclick = function(){
+        if(seleccionada === null){ seleccionada = posActual; pintar(); }
+        else if(seleccionada === posActual){ seleccionada = null; pintar(); }
+        else {
+          var temp = piezas[seleccionada];
+          piezas[seleccionada] = piezas[posActual];
+          piezas[posActual] = temp;
+          seleccionada = null;
+          pintar();
+          verificar();
+        }
+      };
+      board.appendChild(pieza);
+    });
+    var s = document.getElementById('puzzleScore');
+    if(s) s.textContent = 'Piezas correctas: ' + correctas + ' / 9';
+  }
+  function verificar(){
+    var correcto = piezas.every(function(p, i){ return p === i; });
+    if(correcto){
+      puzzles[hoy] = true;
+      set(LS_PUZZLE, puzzles);
+      lanzarConfeti();
+      setTimeout(function(){
+        alert("🎉 ¡PUZZLE COMPLETADO! 🎉\n\n¡Ganaste un cupon especial!");
+        renderPuzzle();
+      }, 500);
+    }
+  }
+  pintar();
+}
+
+/* ============ FUNCIONES DE FECHAS ============ */
+function nombreMes(m){
+  var meses = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  return meses[m] || '';
+}
+
+function diasHastaFecha(dia, mes){
+  var hoy = new Date();
+  hoy.setHours(0,0,0,0);
+  var esteAño = new Date(hoy.getFullYear(), mes - 1, dia);
+  esteAño.setHours(0,0,0,0);
+  if(esteAño.getTime() < hoy.getTime()){
+    esteAño = new Date(hoy.getFullYear() + 1, mes - 1, dia);
+  }
+  var diff = esteAño.getTime() - hoy.getTime();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+/* ============ ADIVINANZAS ============ */
+var LS_ADIV = "ma_adivinanzas";
+
+function renderAdivinanzas(){
+  var ads = get(LS_ADIV, []);
+  var cont = document.getElementById('adivinanzasContainer');
+  var html = '<div style="background:#2a0f1e;padding:16px;border-radius:14px;margin-bottom:16px;"><h3 style="color:#ffd166;margin-bottom:10px;">✍️ Nueva adivinanza</h3><input type="text" id="advPregunta" placeholder="Tu pregunta" maxlength="200" style="width:100%;padding:12px;border-radius:12px;border:2px solid #ffd166;background:rgba(26,10,20,.85);color:#fff;margin-bottom:10px;"><textarea id="advRespuesta" placeholder="Tu respuesta..." maxlength="500" style="width:100%;padding:12px;border-radius:12px;border:2px solid #ffd166;background:rgba(26,10,20,.85);color:#fff;margin-bottom:10px;min-height:80px;font-family:inherit;"></textarea><button class="btn" id="btnAddAdv" style="margin-top:0;">➕ Agregar</button></div>';
+  html += '<p style="color:#ffb3c9;font-size:.8rem;margin-bottom:8px;">💡 Ideas:</p><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">';
+  ADIVINANZAS_SUGERIDAS.forEach(function(sug, i){
+    html += '<button class="album-btn sec" onclick="usarSugerencia(' + i + ')" style="font-size:.7rem;padding:6px 12px;">' + sug + '</button>';
+  });
+  html += '</div>';
+  html += '<h3 style="color:#ffd166;margin:20px 0 10px;">💭 Adivinanzas (' + ads.length + ')</h3>';
+  if(ads.length === 0){
+    html += '<div class="album-vacio">Aún no hay adivinanzas.</div>';
+  } else {
+    ads.slice().reverse().forEach(function(adv, iRev){
+      var i = ads.length - 1 - iRev;
+      var esMia = (adv.autor === usuario.nombre);
+      html += '<div class="cupon-camino" style="cursor:default;"><div class="fecha">' + (esMia ? '👤 Tú' : '👤 ' + adv.autor) + ' · ' + adv.fecha + '</div><div class="titulo">❓ ' + adv.pregunta + '</div>';
+      if(adv.respondida){
+        html += '<div class="desc" style="margin-top:8px;">💬 ' + adv.respuesta + '</div>';
+      } else if(esMia){
+        html += '<div class="desc" style="margin-top:8px;font-style:italic;">⏳ Esperando respuesta...</div>';
+      } else {
+        html += '<div style="margin-top:8px;"><input type="text" id="resp_' + i + '" placeholder="Tu respuesta..." style="width:100%;padding:10px;border-radius:10px;border:2px solid #ffd166;background:rgba(26,10,20,.85);color:#fff;margin-bottom:8px;"><button class="btn" style="margin-top:0;" onclick="responderAdv(' + i + ')">Responder</button></div>';
+      }
+      html += '</div>';
+    });
+  }
+  cont.innerHTML = html;
+  document.getElementById('btnAddAdv').onclick = agregarAdivinanza;
+}
+
+function usarSugerencia(i){
+  document.getElementById('advPregunta').value = ADIVINANZAS_SUGERIDAS[i];
+  document.getElementById('advRespuesta').focus();
+}
+
+function agregarAdivinanza(){
+  var preg = document.getElementById('advPregunta').value.trim();
+  var resp = document.getElementById('advRespuesta').value.trim();
+  if(!preg){ toast("Escribe una pregunta"); return; }
+  if(!resp){ toast("Escribe tu respuesta"); return; }
+  var ads = get(LS_ADIV, []);
+  ads.push({ pregunta: preg, respuesta: resp, autor: usuario.nombre, fecha: CONFIG.HOY, respondida: false, id: Date.now() });
+  set(LS_ADIV, ads);
+  var otro = (usuario === CONFIG.ESTUARDO) ? CONFIG.ANA : CONFIG.ESTUARDO;
+  var msg = encodeURIComponent('💭 ¡Te lancé una adivinanza! 💭\nPregunta: ' + preg + '\n- ' + usuario.nombre);
+  window.open('https://wa.me/' + otro.whatsapp + '?text=' + msg, '_blank');
+  toast("✨ Adivinanza creada");
+  renderAdivinanzas();
+}
+
+function responderAdv(i){
+  var input = document.getElementById('resp_' + i);
+  if(!input || !input.value.trim()){ toast("Escribe tu respuesta"); return; }
+  var ads = get(LS_ADIV, []);
+  if(!ads[i]) return;
+  ads[i].respuesta = input.value.trim();
+  ads[i].respondida = true;
+  ads[i].fechaRespuesta = CONFIG.HOY;
+  set(LS_ADIV, ads);
+  var otro = (usuario === CONFIG.ESTUARDO) ? CONFIG.ANA : CONFIG.ESTUARDO;
+  var msg = encodeURIComponent('💭 ¡Respondí tu adivinanza! 💭\nPregunta: ' + ads[i].pregunta + '\nMi respuesta: ' + input.value.trim() + '\n- ' + usuario.nombre);
+  window.open('https://wa.me/' + otro.whatsapp + '?text=' + msg, '_blank');
+  toast("✅ Respuesta enviada");
+  renderAdivinanzas();
+}
+
+/* ============ CONFETI ============ */
+function lanzarConfeti(){
+  var cont = document.createElement('div');
+  cont.className = 'confeti';
+  document.body.appendChild(cont);
+  var colores = ['#ff5c8a','#ffd166','#c9184a','#4CAF50','#2196F3','#9C27B0','#FF9800'];
+  for(var i = 0; i < 80; i++){
+    var p = document.createElement('div');
+    p.className = 'confeti-piece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.background = colores[Math.floor(Math.random() * colores.length)];
+    p.style.animationDelay = (Math.random() * 0.5) + 's';
+    p.style.animationDuration = (2 + Math.random() * 2) + 's';
+    if(Math.random() > 0.5) p.style.borderRadius = '50%';
+    cont.appendChild(p);
+  }
+  setTimeout(function(){ if(cont.parentNode) cont.remove(); }, 5000);
+}
+
+/* ============ LOCAL STORAGE KEYS ============ */
+var LS_PUZZLE = "ma_puzzle";
 
 /* ============ ARRANQUE ============ */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function(){
   var modales = document.querySelectorAll('.modal');
-  for (var i = 0; i < modales.length; i++) {
-    (function(m) {
-      m.addEventListener('click', function(e) {
-        if (e.target === m) cerrarModal(m.id);
+  for(var i = 0; i < modales.length; i++){
+    (function(m){
+      m.addEventListener('click', function(e){
+        if(e.target === m) cerrarModal(m.id);
       });
     })(modales[i]);
   }
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
       var abiertos = document.querySelectorAll('.modal.activo');
-      for (var j = 0; j < abiertos.length; j++) cerrarModal(abiertos[j].id);
+      for(var j = 0; j < abiertos.length; j++) cerrarModal(abiertos[j].id);
       cerrarAlbumViewer();
       cerrarAlbumSubir();
+      cerrarSelfieDiaViewer();
     }
   });
-
   document.getElementById('btnAlbumSubir').onclick = subirFotoAlbum;
   document.getElementById('btnAlbumCancelar').onclick = cerrarAlbumSubir;
-
   var params = new URLSearchParams(window.location.search);
   var acceso = params.get('acceso');
-  if (acceso === CONFIG.CODIGO_QR_ACCESO) {
+  if(acceso === CONFIG.CODIGO_QR_ACCESO){
     console.log("✅ Acceso por QR válido.");
     mostrarLogin();
   } else {
@@ -1236,28 +1897,28 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-document.getElementById('btnActivarCamara').onclick = function() {
+document.getElementById('btnActivarCamara').onclick = function(){
   this.style.display = 'none';
   iniciarEscaneoQR();
 };
 
-document.getElementById('btnOmitirQR').onclick = function() {
-  if (confirm("⚠️ Si no escaneas el QR, igual tendrás que poner tu palabra secreta.\n\n¿Continuar sin QR?")) {
+document.getElementById('btnOmitirQR').onclick = function(){
+  if(confirm("⚠️ Si no escaneas el QR, igual tendrás que poner tu palabra secreta.\n\n¿Continuar sin QR?")){
     detenerEscaneoQR();
     document.getElementById('pantallaQR').classList.remove('activa');
     mostrarLogin();
   }
 };
 
-document.getElementById('btnEntrar').onclick = function() {
+document.getElementById('btnEntrar').onclick = function(){
   var p = document.getElementById('palabra').value;
-  if (iniciarSesion(p)) {
+  if(iniciarSesion(p)){
     iniciarApp();
   }
 };
 
-document.getElementById('palabra').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') document.getElementById('btnEntrar').click();
+document.getElementById('palabra').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') document.getElementById('btnEntrar').click();
 });
 </script>
 </body>
