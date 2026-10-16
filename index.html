@@ -2234,7 +2234,7 @@ var CONFIG = {
   },
   INICIO: new Date("2019-12-14T00:00:00"),
   CASA: [14.6349, -90.5069],
-  HOY: new Date().toISOString().slice(0,10),
+  HOY: (function(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})(),
   DIST_TESORO: 10,
   DIST_PISTA_1: 50000,
   DIST_PISTA_2: 10000,
@@ -3981,6 +3981,33 @@ document.getElementById('btnEntrar').onclick = function(){
 document.getElementById('palabra').addEventListener('keydown', function(e){
   if(e.key === 'Enter') document.getElementById('btnEntrar').click();
 });
+  // ═══════════════════════════════════════════════════════════
+// 🔄 DETECCIÓN DE CAMBIO DE DÍA (hora Guatemala)
+// ═══════════════════════════════════════════════════════════
+function obtenerHoyLocal(){
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// Cuando vuelve a primer plano la app
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'visible'){
+    var hoyReal = obtenerHoyLocal();
+    if(hoyReal !== CONFIG.HOY){
+      console.log("🔄 Cambió el día. Recargando...");
+      location.reload();
+    }
+  }
+});
+
+// Cada minuto revisa si cambió el día
+setInterval(function(){
+  var hoyReal = obtenerHoyLocal();
+  if(hoyReal !== CONFIG.HOY){
+    console.log("🔄 Cambió el día. Recargando...");
+    location.reload();
+  }
+}, 60000);
 </script>
 </body>
 </html> 
